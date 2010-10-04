@@ -4,9 +4,6 @@ Next steps
 
 - ajouter une interface/... AdtFactory
 
-- test de réecriture impliquant plusieurs adts
--- problème avec adt hétérogène
-
 - adt doit vérifier des proprietes de consistance
 -- est-ce qu'il ne faut pas les vérifier à un niveau plus global?
 
