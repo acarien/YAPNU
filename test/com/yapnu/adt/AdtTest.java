@@ -31,23 +31,5 @@ public class AdtTest {
         Adt instance = new Adt(sort);
 
         assertEquals(instance.getSort(), sort);
-    }
-
-    /**
-     * Test of addTerm method, of class Adt.
-     */
-    @Test
-    public void testAddConstant() {
-        Constant c1a = new Constant("c1", adt.getSort());
-        Constant c1b = new Constant("c1", adt.getSort());
-        Constant c2 = new Constant("c2", new Sort("another sort"));
-       
-        adt.addTerm(c1a);
-        adt.addTerm(c1b);
-        adt.addTerm(c2);
-    }
-
-
-
-
+    }   
 }

@@ -6,6 +6,7 @@ package com.yapnu.adt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -23,9 +24,16 @@ public class TermRewritter {
         
     }
 
-    public TermRewritter(ArrayList<Adt> adts) {        
+    public TermRewritter(ArrayList<Adt> adts) {
+        HashSet<Sort> sorts = new HashSet<Sort>();
         this.adts = new HashMap<Sort, LinkedList<Adt>>();
         for (Adt adt : adts) {
+            if (sorts.contains(adt.getSort())) {
+                throw new IllegalArgumentException("Cannot have two adts with the same main sort.");
+            }
+
+            sorts.add(adt.getSort());
+
             this.addAdt(adt);
         }
     }
@@ -46,7 +54,7 @@ public class TermRewritter {
             this.adts.get(sort).addLast(adt);
         }
     }
-
+    
     public Term rewritte(Term term) {
        return this.rewritte(term, null);
     }
@@ -55,18 +63,18 @@ public class TermRewritter {
         Term currentTerm = term;
 
         if (term == null) {
-            
+            throw new IllegalArgumentException("Cannot rewrite a null term.");
         }
 
         while (!(currentTerm.isGenerator() && currentTerm.isNormalForm())) {
 
             if (!this.adts.containsKey(currentTerm.getSort())) {
-                
+                throw new IllegalArgumentException("Cannot rewrite a term of the sort " + currentTerm.getSort().toString() + ".");
             }
 
-            LinkedList<Adt> adts = this.adts.get(currentTerm.getSort());            
+            LinkedList<Adt> foundAdts = this.adts.get(currentTerm.getSort());
             boolean hasFound = false;
-            for (Iterator<Adt> iterator = adts.descendingIterator(); !hasFound && iterator.hasNext();) {
+            for (Iterator<Adt> iterator = foundAdts.descendingIterator(); !hasFound && iterator.hasNext();) {
                 Adt adt = iterator.next();
                 Axiom axiom = adt.getAxiom(currentTerm);
                 if (axiom != null) {                    
@@ -78,14 +86,7 @@ public class TermRewritter {
 
             if (hasFound) {
                 continue;
-            }
-            
-            /*if (this.adts.get(currentTerm.getSort()).hasAxiom(currentTerm)) {
-                Axiom axiom = this.adts.get(currentTerm.getSort()).getAxiom(currentTerm);
-                previousTerm = currentTerm;
-                currentTerm = axiom.getRightTerm();                
-                continue;
-            }*/
+            }           
 
              if (currentTerm.equals(previousTerm) || currentTerm instanceof Variable) {                 
                 throw new IllegalArgumentException("Cannot rewrite the term " + previousTerm + ".");

@@ -5,7 +5,6 @@
 
 package com.yapnu.adt;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -24,6 +23,10 @@ public class Adt {
     private final LinkedList<Sort> additionalCodomains = new LinkedList<Sort>();
 
     public Adt(Sort sort) {
+        if (sort == null) {
+            throw new IllegalArgumentException("Sort cannot be null.");
+        }
+        
         this.sort = sort;
     }
 
@@ -48,14 +51,46 @@ public class Adt {
     }
 
     public void addTerm(Constant term) {
+        if (term == null) {
+            throw new IllegalArgumentException("Term cannot be null.");
+        }
+
+        if (!this.sort.equals(term.getSort())) {
+            throw new IllegalArgumentException("Term should be of type " + sort + ".");
+        }
+
+        if (this.constants.containsKey(term.getName())) {
+            throw new IllegalArgumentException("Term " + term.toString() + " is already defined for the current adt.");
+        }
+
         this.constants.put(term.getName(), term);
     }
 
     public void addTerm(Variable term) {
+        if (term == null) {
+            throw new IllegalArgumentException("Term cannot be null.");
+        }
+
+        if (!this.sort.equals(term.getSort())) {
+            throw new IllegalArgumentException("Term should be of type " + sort + ".");
+        }
+        
+        if (this.variables.containsKey(term.getName())) {
+            throw new IllegalArgumentException("Term " + term.toString() + " is already defined for the current adt.");
+        }
+        
         this.variables.put(term.getName(), term);
     }
 
-    public void addTerm(OperationSignature term) {        
+    public void addTerm(OperationSignature term) {
+        if (term == null) {
+            throw new IllegalArgumentException("Term cannot be null.");
+        }
+
+        if (this.operationTerms.containsKey(term.getName())) {
+            throw new IllegalArgumentException("Term " + term.toString() + " is already defined for the current adt.");
+        }
+
         this.operationTerms.put(term.getName(), term);
         if (!term.getSort().equals(this.sort)) {
             this.additionalCodomains.add(term.getSort());
@@ -71,11 +106,7 @@ public class Adt {
         if (axiom != null) {
             return axiom;
         }
-
-        if (leftTerm instanceof Constant) {
-            // throw exception
-        }
-
+        
         if (this.axiomPerName.containsKey(leftTerm.getName())) {                                   
             SubstitutionBag substitutions = new SubstitutionBag();
             for (Axiom possibleAxiom : this.axiomPerName.get(leftTerm.getName())) {
@@ -91,7 +122,11 @@ public class Adt {
         return null;
     }
 
-    public void addAxiom(Axiom axiom) {        
+    public void addAxiom(Axiom axiom) {
+        if (axiom == null) {
+            throw new IllegalArgumentException("Axiom cannot be null.");
+        }
+
         if (this.axiomPerName.get(axiom.getLeftTerm().getName()) == null) {
             this.axiomPerName.put(axiom.getLeftTerm().getName(), new LinkedList<Axiom>());
         }

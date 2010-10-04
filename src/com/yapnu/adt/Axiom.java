@@ -14,8 +14,7 @@ public class Axiom {
     private Term leftTerm;
     private Term rightTerm;
 
-    public Axiom(Term leftTerm, Term rightTerm) {
-        //this.SetMembersByShortlexOrder(leftTerm, rightTerm);
+    public Axiom(Term leftTerm, Term rightTerm) {        
         this.leftTerm = leftTerm;
         this.rightTerm = rightTerm;
     }

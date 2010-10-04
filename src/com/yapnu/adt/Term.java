@@ -5,8 +5,6 @@
 
 package com.yapnu.adt;
 
-import java.util.List;
-
 /**
  *
  * @author adrien

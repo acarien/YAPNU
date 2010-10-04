@@ -5,11 +5,6 @@
 
 package com.yapnu.petriNets;
 
-import com.yapnu.adt.Constant;
-import com.yapnu.adt.Sort;
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 /**
  *
  * @author adrien

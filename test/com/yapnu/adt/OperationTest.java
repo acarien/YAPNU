@@ -20,20 +20,18 @@ public class OperationTest {
    
     @Test
     public void testGetSubstitutionsOneVariable() {
-        Adt adt = BooleanAdt.instance().getAdt();
-        Variable variableX = new Variable("x", adt.getSort());
-        adt.addTerm(variableX);
+        Adt adt = BooleanAdt.instance().getAdt();        
 
         Constant trueCte = adt.getConstant("true");
         Constant falseCte = adt.getConstant("false");
         OperationSignature andSignature = adt.getOperationSignature("and");        
-        Operation and = andSignature.instantiates(variableX, falseCte);
+        Operation and = andSignature.instantiates(adt.getVariable("x"), falseCte);
 
         SubstitutionBag bag1 = new SubstitutionBag();        
         boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag1);
         assertTrue("Can substitue ", canSubstitute1);
         assertTrue("One variable substitued ", bag1.size() == 1);
-        assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(variableX, falseCte)));
+        assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(adt.getVariable("x"), falseCte)));
 
         SubstitutionBag bag2 = new SubstitutionBag();        
         boolean canSubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, trueCte), bag2);
@@ -43,19 +41,17 @@ public class OperationTest {
     @Test
     public void testGetSubstitutionsOneVariableSeveralTimes() {
         Adt adt = BooleanAdt.instance().getAdt();
-        Variable variableX = new Variable("x", adt.getSort());
-        adt.addTerm(variableX);
-
+        
         Constant trueCte = adt.getConstant("true");
         Constant falseCte = adt.getConstant("false");
         OperationSignature andSignature = adt.getOperationSignature("and");        
-        Operation and = andSignature.instantiates(variableX, variableX);
+        Operation and = andSignature.instantiates(adt.getVariable("x"), adt.getVariable("x"));
         
         SubstitutionBag bag1 = new SubstitutionBag();
         boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag1);
         assertTrue("Can substitue ", canSubstitute1);
         assertTrue("One variable substitued ", bag1.size() == 1);
-        assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(variableX, falseCte)));
+        assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(adt.getVariable("x"), falseCte)));
 
         SubstitutionBag bag2 = new SubstitutionBag();        
         boolean cansubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, falseCte), bag2);
@@ -85,7 +81,7 @@ public class OperationTest {
     }   
 
     @Test
-    public void TestInstantiationWithSubstitutionOneVariableInSeveralTerms(){
+    public void testInstantiationWithSubstitutionOneVariableInSeveralTerms(){
         Adt adt = IntegerAdt.instance().getAdt();
         Variable variableX = new Variable("x", adt.getSort());
         OperationSignature addSignature = adt.getOperationSignature("add");
@@ -108,7 +104,7 @@ public class OperationTest {
     }
 
     @Test
-    public void TestInstantiationWithSubstitutionSeveralVariables(){
+    public void testInstantiationWithSubstitutionSeveralVariables(){
         Adt adt = IntegerAdt.instance().getAdt();
         Variable variableX = new Variable("x", adt.getSort());
         Variable variableY = new Variable("y", adt.getSort());
@@ -130,7 +126,7 @@ public class OperationTest {
     }
 
     @Test
-    public void TestIsNormalForm() {
+    public void testIsNormalForm() {
         Adt adt = IntegerAdt.instance().getAdt();
         Constant zero = adt.getConstant("0");
         OperationSignature succ = adt.getOperationSignature("succ");

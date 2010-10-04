@@ -9,7 +9,7 @@ import com.yapnu.adt.Axiom;
 import com.yapnu.adt.Constant;
 import com.yapnu.adt.OperationSignature;
 import com.yapnu.adt.Sort;
-import com.yapnu.adt.Term;
+import com.yapnu.adt.Variable;
 import java.util.ArrayList;
 
 /**
@@ -45,6 +45,11 @@ public class BooleanAdt {
         Constant falseTerm = new Constant("false", sort);
         adt.addTerm(trueTerm);
         adt.addTerm(falseTerm);
+
+        Variable x = new Variable("x", sort);
+        Variable y = new Variable("y", sort);
+        adt.addTerm(x);
+        adt.addTerm(y);
 
         ArrayList<Sort> domain = new ArrayList<Sort>();
         domain.add(sort);

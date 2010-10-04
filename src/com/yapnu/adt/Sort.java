@@ -47,10 +47,15 @@ public class Sort {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
+        int hash = 7;
+        hash = 83 * hash + (this.name != null ? this.name.hashCode() : 0);
         return hash;
     }
 
-    
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
+
 }

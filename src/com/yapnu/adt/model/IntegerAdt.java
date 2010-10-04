@@ -7,7 +7,6 @@ package com.yapnu.adt.model;
 
 import com.yapnu.adt.Adt;
 import com.yapnu.adt.Axiom;
-import com.yapnu.adt.Term;
 import com.yapnu.adt.Constant;
 import com.yapnu.adt.OperationSignature;
 import com.yapnu.adt.Sort;
@@ -50,13 +49,13 @@ public class IntegerAdt {
         adt.addTerm(x);
         adt.addTerm(y);
 
-        AddAddOperation(adt);
-        AddEqualsOperation(adt);
+        addAddOperation(adt);
+        addEqualsOperation(adt);
 
         return adt;
     }
 
-    private static void AddAddOperation(Adt adt) {
+    private static void addAddOperation(Adt adt) {
         ArrayList<Sort> dyadicDomain = new ArrayList<Sort>();
         dyadicDomain.add(sort);
         dyadicDomain.add(sort);
@@ -74,7 +73,7 @@ public class IntegerAdt {
         adt.addAxiom(new Axiom(add.instantiates(succSignature.instantiates(x) ,y), succSignature.instantiates(add.instantiates(x, y))));
     }
 
-    private static void AddEqualsOperation(Adt adt) {
+    private static void addEqualsOperation(Adt adt) {
         Adt boolAdt = BooleanAdt.instance().getAdt();
 
         ArrayList<Sort> dyadicDomain = new ArrayList<Sort>();

@@ -5,8 +5,6 @@
 
 package com.yapnu.adt;
 
-import java.util.List;
-
 /**
  *
  * @author adrien
@@ -91,8 +89,9 @@ public class Constant implements Term {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 23 * hash + (this.name != null ? this.name.hashCode() : 0);
+        int hash = 3;
+        hash = 89 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 89 * hash + (this.sort != null ? this.sort.hashCode() : 0);
         return hash;
-    }    
+    }
 }

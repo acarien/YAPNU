@@ -5,8 +5,6 @@
 
 package com.yapnu.adt;
 
-import java.util.List;
-
 /**
  *
  * @author adrien
@@ -109,8 +107,9 @@ public class Variable implements Term {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
+        int hash = 3;
+        hash = 61 * hash + (this.sort != null ? this.sort.hashCode() : 0);
+        hash = 61 * hash + (this.name != null ? this.name.hashCode() : 0);
         return hash;
     }
 

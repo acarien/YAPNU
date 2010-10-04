@@ -1,26 +1,24 @@
 Next steps
 ==========
+- substitution => unification
 - unit tests sur substitute et instantiate !
+
+- enlever les singletons sur les adts...
 
 - ajouter une interface/... AdtFactory
 
-- adt doit vérifier des proprietes de consistance
--- est-ce qu'il ne faut pas les vérifier à un niveau plus global?
+- comment marche une operation avec un domain heterogene
 
-- virer tout ces tableaux
-- nettoyer le code sur les termes (syntaxe tableau, ...)
 - modifier les equals et hashcode pour regarder ce qui se passe quand il y a plusieurs adt
 - modéliser le réseau
 
 - equals peut etre supprime de la majorite des termes si on ne peut pas en creer en dehors du package.
+
 Notes
 =====
 - systeme de reecriture
 -- ajouter la fonction d'ordre sur les termes
 -- knuth-bendix completion => je ne crois pas que c'est necessaire. on va faire la supposition que les systemes passes sont "complets"
-
-- virer le cast sur AxiomaticTerm dans size()
-- être sur de l'utilier de substitues avec autre chose que des AxiomaticTerm
 
 - réseau de petri alégbrique
 - faire l'Adt black token

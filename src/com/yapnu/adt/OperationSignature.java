@@ -103,8 +103,9 @@ public class OperationSignature {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 17 * hash + (this.name != null ? this.name.hashCode() : 0);
+        int hash = 7;
+        hash = 97 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 97 * hash + (this.codomain != null ? this.codomain.hashCode() : 0);
         return hash;
-    }       
+    }
 }
