@@ -55,35 +55,28 @@ public class BooleanAdt {
         OperationSignature notTerm = new OperationSignature("not", sort, sort, false);
         adt.addTerm(andTerm);
         adt.addTerm(orTerm);
-        adt.addTerm(notTerm);
+        adt.addTerm(notTerm);                    
 
-        Term[] falseTermArray = {(Term) falseTerm};
-        Term[] trueTermArray = {(Term) trueTerm};
-        Term[] falseFalse = {(Term) falseTerm, (Term)falseTerm};
-        Term[] trueFalse = {(Term) trueTerm, (Term)falseTerm};
-        Term[] falseTrue = {(Term) falseTerm, (Term)trueTerm};
-        Term[] trueTrue = {(Term) trueTerm, (Term)trueTerm};
-
-        Axiom andAxiom1 = new Axiom(andTerm.instantiates(falseFalse), falseTerm);
-        Axiom andAxiom2 = new Axiom(andTerm.instantiates(falseTrue), falseTerm);
-        Axiom andAxiom3 = new Axiom(andTerm.instantiates(trueFalse), falseTerm);
-        Axiom andAxiom4 = new Axiom(andTerm.instantiates(trueTrue), trueTerm);
+        Axiom andAxiom1 = new Axiom(andTerm.instantiates(falseTerm, falseTerm), falseTerm);
+        Axiom andAxiom2 = new Axiom(andTerm.instantiates(falseTerm, trueTerm), falseTerm);
+        Axiom andAxiom3 = new Axiom(andTerm.instantiates(trueTerm, falseTerm), falseTerm);
+        Axiom andAxiom4 = new Axiom(andTerm.instantiates(trueTerm, trueTerm), trueTerm);
         adt.addAxiom(andAxiom1);
         adt.addAxiom(andAxiom2);
         adt.addAxiom(andAxiom3);
         adt.addAxiom(andAxiom4);
 
-        Axiom orAxiom1 = new Axiom(orTerm.instantiates(falseFalse), falseTerm);
-        Axiom orAxiom2 = new Axiom(orTerm.instantiates(falseTrue), trueTerm);
-        Axiom orAxiom3 = new Axiom(orTerm.instantiates(trueFalse), trueTerm);
-        Axiom orAxiom4 = new Axiom(orTerm.instantiates(trueTrue), trueTerm);
+        Axiom orAxiom1 = new Axiom(orTerm.instantiates(falseTerm, falseTerm), falseTerm);
+        Axiom orAxiom2 = new Axiom(orTerm.instantiates(falseTerm, trueTerm), trueTerm);
+        Axiom orAxiom3 = new Axiom(orTerm.instantiates(trueTerm, falseTerm), trueTerm);
+        Axiom orAxiom4 = new Axiom(orTerm.instantiates(trueTerm, trueTerm), trueTerm);
         adt.addAxiom(orAxiom1);
         adt.addAxiom(orAxiom2);
         adt.addAxiom(orAxiom3);
         adt.addAxiom(orAxiom4);
         
-        Axiom notAxiom1 = new Axiom(notTerm.instantiates(falseTermArray), trueTerm);
-        Axiom notAxiom2 = new Axiom(notTerm.instantiates(trueTermArray), falseTerm);
+        Axiom notAxiom1 = new Axiom(notTerm.instantiates(falseTerm), trueTerm);
+        Axiom notAxiom2 = new Axiom(notTerm.instantiates(trueTerm), falseTerm);
         adt.addAxiom(notAxiom1);
         adt.addAxiom(notAxiom2);
 

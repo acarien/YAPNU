@@ -82,7 +82,7 @@ public class Adt {
                 substitutions.clear();                
                 boolean canSubstitute = possibleAxiom.getLeftTerm().tryGetMatchingSubstitutions(leftTerm, substitutions);
                 if (canSubstitute) {                    
-                    Term rightTerm = possibleAxiom.getRightTerm().substitutes(substitutions.getSubstitutions());
+                    Term rightTerm = possibleAxiom.getRightTerm().substitutes(substitutions);
                     return new Axiom(leftTerm, rightTerm);
                 }                
             }

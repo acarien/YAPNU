@@ -78,14 +78,8 @@ public class Operation implements Term {
         return true;
     }
 
-    public Operation substitutes(Substitution substitution) {
-        ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
-        substitutions.add(substitution);
-        return this.substitutes(substitutions);
-    }
-
    @Override
-    public Operation substitutes(List<Substitution> substitutions) {
+    public Operation substitutes(SubstitutionBag substitutions) {
        if (substitutions == null) {
             throw new IllegalArgumentException("Substitutions cannnot be null.");
         }

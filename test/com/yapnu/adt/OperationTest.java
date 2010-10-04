@@ -26,20 +26,17 @@ public class OperationTest {
 
         Constant trueCte = adt.getConstant("true");
         Constant falseCte = adt.getConstant("false");
-        OperationSignature andSignature = adt.getOperationSignature("and");
-        Term[] parameters = {variableX, falseCte};
-        Operation and = andSignature.instantiates(parameters);
+        OperationSignature andSignature = adt.getOperationSignature("and");        
+        Operation and = andSignature.instantiates(variableX, falseCte);
 
-        SubstitutionBag bag1 = new SubstitutionBag();
-        Term[] substitutionParameters1 = {falseCte, falseCte};
-        boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(substitutionParameters1), bag1);
+        SubstitutionBag bag1 = new SubstitutionBag();        
+        boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag1);
         assertTrue("Can substitue ", canSubstitute1);
         assertTrue("One variable substitued ", bag1.size() == 1);
         assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(variableX, falseCte)));
 
-        SubstitutionBag bag2 = new SubstitutionBag();
-        Term[] substitutionParameters2 = {trueCte, trueCte};
-        boolean canSubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(substitutionParameters2), bag2);
+        SubstitutionBag bag2 = new SubstitutionBag();        
+        boolean canSubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, trueCte), bag2);
         assertFalse("Cannot substitute ", canSubstitute2);
     }
 
@@ -51,20 +48,17 @@ public class OperationTest {
 
         Constant trueCte = adt.getConstant("true");
         Constant falseCte = adt.getConstant("false");
-        OperationSignature andSignature = adt.getOperationSignature("and");
-        Term[] parameters = {variableX, variableX};
-        Operation and = andSignature.instantiates(parameters);
-
-        Term[] substitutionParameters1 = {falseCte, falseCte};
+        OperationSignature andSignature = adt.getOperationSignature("and");        
+        Operation and = andSignature.instantiates(variableX, variableX);
+        
         SubstitutionBag bag1 = new SubstitutionBag();
-        boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(substitutionParameters1), bag1);
+        boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag1);
         assertTrue("Can substitue ", canSubstitute1);
         assertTrue("One variable substitued ", bag1.size() == 1);
         assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(variableX, falseCte)));
 
-        SubstitutionBag bag2 = new SubstitutionBag();
-        Term[] substitutionParameters2 = {trueCte, falseCte};
-        boolean cansubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(substitutionParameters2), bag2);
+        SubstitutionBag bag2 = new SubstitutionBag();        
+        boolean cansubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, falseCte), bag2);
         assertFalse("Cannot substitute ", cansubstitute2);
     }
 
@@ -77,19 +71,17 @@ public class OperationTest {
         
         OperationSignature succSignature = adt.getOperationSignature("succ");
         OperationSignature addSignature = adt.getOperationSignature("add");
-
-        Term[] addParameters1 = {variableX, zero};
-        Operation add = addSignature.instantiates(addParameters1);        
-        Operation succ = succSignature.instantiates(add);
         
-        Term[] addParameters2 = {succSignature.instantiates(zero), zero};
-        Term[] succParameters2 = {addSignature.instantiates(addParameters2)};
+        Operation add = addSignature.instantiates(variableX, zero);
+        Operation succ = succSignature.instantiates(add);                        
 
         SubstitutionBag bag = new SubstitutionBag();
-        boolean canSubstitute = succ.tryGetMatchingSubstitutions(succSignature.instantiates(succParameters2), bag);
+        boolean canSubstitute = succ.tryGetMatchingSubstitutions(
+                succSignature.instantiates(addSignature.instantiates(succSignature.instantiates(zero), zero)),
+                bag);
         assertTrue("Can substitue ", canSubstitute);
         assertTrue("One variable substitued ", bag.size() == 1);
-        assertTrue("Is the right substitution ", bag.getSubstitutions().get(0).equals(new Substitution(variableX, addParameters2[0])));
+        assertTrue("Is the right substitution ", bag.getSubstitutions().get(0).equals(new Substitution(variableX, succSignature.instantiates(zero))));
     }   
 
     @Test
@@ -100,21 +92,18 @@ public class OperationTest {
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
         Constant zero = adt.getConstant("0");
-        
-        Term[] addParameters = {variableX, succSignature.instantiates(variableX)};
-        Operation add = addSignature.instantiates(addParameters);
-        
-        Term[] addParametersAfterSubstitution = {zero, succSignature.instantiates(zero)};
-        Operation addAfterSubstitution = addSignature.instantiates(addParametersAfterSubstitution);
+                
+        Operation add = addSignature.instantiates(variableX, succSignature.instantiates(variableX));
+        Operation addAfterSubstitution = addSignature.instantiates(zero, succSignature.instantiates(zero));
 
         Substitution substitution = new Substitution(variableX, zero);
-
-        Operation addSubstituted1 = add.substitutes(substitution);
+        
+        Operation addSubstituted1 = add.substitutes(new SubstitutionBag(substitution));
         assertEquals("test syntaxic sugar ", addSubstituted1, addAfterSubstitution);
 
         ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
         substitutions.add(substitution);
-        Operation addSubstituted2 = add.substitutes(substitutions);
+        Operation addSubstituted2 = add.substitutes(new SubstitutionBag(substitution));
         assertEquals("test general case", addSubstituted2, addAfterSubstitution);
     }
 
@@ -127,19 +116,15 @@ public class OperationTest {
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
         Constant zero = adt.getConstant("0");
-        
-        Term[] addParameters = {variableY, succSignature.instantiates(variableX)};
-        Operation add = addSignature.instantiates(addParameters);
-        
-        Term[] addParametersAfterSubstitution = {zero, succSignature.instantiates(zero)};
-        Operation addAfterSubstitution = addSignature.instantiates(addParametersAfterSubstitution);
+                
+        Operation add = addSignature.instantiates(variableY, succSignature.instantiates(variableX));
+        Operation addAfterSubstitution = addSignature.instantiates(zero, succSignature.instantiates(zero));
 
         Substitution substitutionX = new Substitution(variableX, zero);
         Substitution substitutionY = new Substitution(variableY, zero);
 
-        ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
-        substitutions.add(substitutionX);
-        substitutions.add(substitutionY);
+        SubstitutionBag substitutions = new SubstitutionBag(substitutionX, substitutionY);
+        
         Operation addSubstituted = add.substitutes(substitutions);
         assertEquals(addSubstituted, addAfterSubstitution);
     }
@@ -156,8 +141,7 @@ public class OperationTest {
         assertTrue(succ.instantiates(succ.instantiates(zero)).isNormalForm());
         assertFalse(succ.instantiates(variableX).isNormalForm());
         assertFalse(succ.instantiates(succ.instantiates(variableX)).isNormalForm());       
-        
-        Term[] addParameters = {zero, zero};
-        assertFalse(succ.instantiates(add.instantiates(addParameters)).isNormalForm());
+                
+        assertFalse(succ.instantiates(add.instantiates(zero, zero)).isNormalForm());
     }
 }

@@ -16,8 +16,7 @@ public interface Term {
     Sort getSort();
     boolean isGenerator();
     int size();
-    boolean isNormalForm();
-    //Term substitutes(Substitution substitution);
-    Term substitutes(List<Substitution> substitutions);
+    boolean isNormalForm();    
+    Term substitutes(SubstitutionBag substitutions);
     boolean tryGetMatchingSubstitutions(Term other, SubstitutionBag bag);    
 }

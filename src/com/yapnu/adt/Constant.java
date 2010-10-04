@@ -56,7 +56,7 @@ public class Constant implements Term {
     }
 
     @Override
-    public Constant substitutes(List<Substitution> substitutions) {
+    public Constant substitutes(SubstitutionBag substitutions) {
         return this;
     }
 

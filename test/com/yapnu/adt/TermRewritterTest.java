@@ -62,11 +62,8 @@ public class TermRewritterTest {
         OperationSignature and = adt.getOperationSignature("and");
         OperationSignature or = adt.getOperationSignature("or");
         OperationSignature not = adt.getOperationSignature("not");
-        
-        Term[] andParameters = {(Term)trueTerm, (Term)not.instantiates(falseTerm)};
-        Term[] orParameters = {(Term)falseTerm, (Term)and.instantiates(andParameters)};
-
-        Term term = or.instantiates(orParameters);
+                
+        Term term = or.instantiates(falseTerm, and.instantiates(trueTerm, not.instantiates(falseTerm)));
 
         Term rewrittenTerm1 = rewritter.rewritte(term);
         assertEquals(rewrittenTerm1, adt.getConstant("true"));
@@ -89,14 +86,12 @@ public class TermRewritterTest {
 
         OperationSignature andSignature = new OperationSignature("and", domain, adt.getSort(), false);
         Variable variableX = new Variable("x", adt.getSort());
-                            
-        Term[] axiomParameters = {falseTerm, variableX};
-        Term axiomLeftTerm = andSignature.instantiates(axiomParameters);
+                                    
+        Term axiomLeftTerm = andSignature.instantiates(falseTerm, variableX);
         Axiom axiom = new Axiom(axiomLeftTerm, falseTerm);
         adt.addAxiom(axiom);
-
-        Term[] testTermParameters = {falseTerm, trueTerm};
-        Term testTerm = andSignature.instantiates(testTermParameters);
+        
+        Term testTerm = andSignature.instantiates(falseTerm, trueTerm);
 
         Term rewrittenTerm1 = rewritter.rewritte(testTerm);
         assertEquals(rewrittenTerm1, falseTerm);
@@ -111,9 +106,7 @@ public class TermRewritterTest {
         Constant falseTerm = new Constant("false", adt.getSort());        
         adt.addTerm(falseTerm);        
         
-        Variable variableX = new Variable("x", adt.getSort());
-               
-        Axiom axiom = new Axiom(variableX, falseTerm);
+        Variable variableX = new Variable("x", adt.getSort());                      
                 
         Term rewrittenTerm1 = rewritter.rewritte(variableX);
         assertEquals(rewrittenTerm1, falseTerm);
@@ -146,13 +139,13 @@ public class TermRewritterTest {
         Constant zero = adt.getConstant("0");
         OperationSignature addSignature = adt.getOperationSignature("add");
         OperationSignature succSignature = adt.getOperationSignature("succ");
-                       
-        Term[] baseCaseParamter = {zero, succSignature.instantiates(zero)};        
-        Term rewrittenTerm1 = rewritter.rewritte(addSignature.instantiates(baseCaseParamter));
+                               
+        Term rewrittenTerm1 = rewritter.rewritte(addSignature.instantiates(zero, succSignature.instantiates(zero)));
         assertEquals(rewrittenTerm1, succSignature.instantiates(zero));
-
-        Term[] nominalCaseParamter = {succSignature.instantiates(succSignature.instantiates(zero)), succSignature.instantiates(zero)};
-        Term rewrittenTerm2 = rewritter.rewritte(addSignature.instantiates(nominalCaseParamter));
+        
+        Term rewrittenTerm2 = rewritter.rewritte(
+                addSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero)),
+                succSignature.instantiates(zero)));
         assertEquals(rewrittenTerm2, succSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero))));
     }
 
@@ -168,29 +161,24 @@ public class TermRewritterTest {
 
         Constant zero = intAdt.getConstant("0");
         Constant falseTerm = boolAdt.getConstant("false");
-        Constant trueTerm = boolAdt.getConstant("true");
-        OperationSignature addSignature = intAdt.getOperationSignature("add");
+        Constant trueTerm = boolAdt.getConstant("true");        
         OperationSignature succSignature = intAdt.getOperationSignature("succ");
         OperationSignature equalsSignature = intAdt.getOperationSignature("=");
-
-        Term[] baseCaseParamter = {zero, zero};
-        Term rewrittenTerm1 = rewritter.rewritte(equalsSignature.instantiates(baseCaseParamter));
+        
+        Term rewrittenTerm1 = rewritter.rewritte(equalsSignature.instantiates(zero, zero));
         assertEquals(rewrittenTerm1, trueTerm);
-
-        Term[] case2Paramter = {zero, succSignature.instantiates(zero)};
-        Term rewrittenTerm2 = rewritter.rewritte(equalsSignature.instantiates(case2Paramter));
+        
+        Term rewrittenTerm2 = rewritter.rewritte(equalsSignature.instantiates(zero, succSignature.instantiates(zero)));
         assertEquals(rewrittenTerm2, falseTerm);
-
-        Term[] case3Paramter = {succSignature.instantiates(zero), zero};
-        Term rewrittenTerm3 = rewritter.rewritte(equalsSignature.instantiates(case3Paramter));
+        
+        Term rewrittenTerm3 = rewritter.rewritte(
+                equalsSignature.instantiates(succSignature.instantiates(zero), zero));
         assertEquals(rewrittenTerm3, falseTerm);
-
-        Term[] case4Paramter = {succSignature.instantiates(zero), succSignature.instantiates(zero)};
-        Term rewrittenTerm4 = rewritter.rewritte(equalsSignature.instantiates(case4Paramter));
+        
+        Term rewrittenTerm4 = rewritter.rewritte(equalsSignature.instantiates(succSignature.instantiates(zero), succSignature.instantiates(zero)));
         assertEquals(rewrittenTerm4, trueTerm);
-
-        Term[] case5Paramter = {succSignature.instantiates(succSignature.instantiates(zero)), succSignature.instantiates(zero)};
-        Term rewrittenTerm = rewritter.rewritte(equalsSignature.instantiates(case5Paramter));
+        
+        Term rewrittenTerm = rewritter.rewritte(equalsSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero)), succSignature.instantiates(zero)));
         assertEquals(rewrittenTerm, falseTerm);        
     }
 }

@@ -67,16 +67,11 @@ public class IntegerAdt {
         Variable x = adt.getVariable("x");
         Variable y = adt.getVariable("y");
         OperationSignature succSignature = adt.getOperationSignature("succ");
-        Constant zeroTerm = adt.getConstant("0");
+        Constant zeroTerm = adt.getConstant("0");        
 
-        Term[] xZero = {x, zeroTerm};
-        Term[] zeroX = {zeroTerm, x};
-        Term[] xy = {x, y};
-        Term[] succXY = {succSignature.instantiates(x) ,y};
-
-        adt.addAxiom(new Axiom(add.instantiates(zeroX), x));
-        adt.addAxiom(new Axiom(add.instantiates(xZero), x));
-        adt.addAxiom(new Axiom(add.instantiates(succXY), succSignature.instantiates(add.instantiates(xy))));
+        adt.addAxiom(new Axiom(add.instantiates(zeroTerm, x), x));
+        adt.addAxiom(new Axiom(add.instantiates(x, zeroTerm), x));
+        adt.addAxiom(new Axiom(add.instantiates(succSignature.instantiates(x) ,y), succSignature.instantiates(add.instantiates(x, y))));
     }
 
     private static void AddEqualsOperation(Adt adt) {
@@ -95,16 +90,10 @@ public class IntegerAdt {
         Constant zeroTerm = adt.getConstant("0");
         Constant falseTerm = boolAdt.getConstant("false");
         Constant trueTerm = boolAdt.getConstant("true");
-
-        Term[] zeroZero = {zeroTerm, zeroTerm};
-        Term[] zeroSucc = {zeroTerm, succSignature.instantiates(x)};
-        Term[] succZero = {succSignature.instantiates(x), zeroTerm};
-        Term[] succSucc = {succSignature.instantiates(x), succSignature.instantiates(y)};
-        Term[] xy = {x, y};
-
-        adt.addAxiom(new Axiom(equals.instantiates(zeroZero), trueTerm));
-        adt.addAxiom(new Axiom(equals.instantiates(zeroSucc), falseTerm));
-        adt.addAxiom(new Axiom(equals.instantiates(succZero), falseTerm));
-        adt.addAxiom(new Axiom(equals.instantiates(succSucc),  equals.instantiates(xy)));
+                
+        adt.addAxiom(new Axiom(equals.instantiates(zeroTerm, zeroTerm), trueTerm));
+        adt.addAxiom(new Axiom(equals.instantiates(zeroTerm, succSignature.instantiates(x)), falseTerm));
+        adt.addAxiom(new Axiom(equals.instantiates(succSignature.instantiates(x), zeroTerm), falseTerm));
+        adt.addAxiom(new Axiom(equals.instantiates(succSignature.instantiates(x), succSignature.instantiates(y)),  equals.instantiates(x, y)));
     }    
 }

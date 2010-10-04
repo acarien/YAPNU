@@ -49,20 +49,7 @@ public class OperationSignature {
         return isGenerator;
     }
 
-    public Operation instantiates(Term parameter) {
-        if (this.domain.size() != 1) {
-            throw new IllegalArgumentException("The arity of the operation is not one.");
-        }
-
-        if (!this.domain.get(0).equals(parameter.getSort())) {
-            throw new IllegalArgumentException("Parameter " + parameter + " has not the right domain.");
-        }
-
-        Term[] parameters = {parameter};
-        return new Operation(this, parameters);
-    }
-
-    public Operation instantiates(Term[] parameters) {
+    public Operation instantiates(Term... parameters) {
         if (parameters.length != this.domain.size()){
             throw new IllegalArgumentException("The size of parameters is not equal to the arity of the operation.");
         }

@@ -16,6 +16,15 @@ import java.util.Map.Entry;
 public class SubstitutionBag {
     LinkedHashMap<Variable, Term> substitutions = new LinkedHashMap<Variable, Term>();
 
+    public SubstitutionBag() {
+    }
+
+    public SubstitutionBag(Substitution... substitutions) {
+        for (Substitution substitution : substitutions) {
+            this.tryAddSubstitution(substitution);
+        }
+    }
+
     public void clear() {
         this.substitutions.clear();
     }

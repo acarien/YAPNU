@@ -63,12 +63,12 @@ public class Variable implements Term {
     }
 
     @Override
-    public Term substitutes(List<Substitution> substitutions) {
+    public Term substitutes(SubstitutionBag substitutions) {
         if (substitutions == null) {
             throw new IllegalArgumentException("Substitutions cannnot be null.");
         }
 
-         for (Substitution substitution : substitutions) {
+         for (Substitution substitution : substitutions.getSubstitutions()) {
              if (substitution.getVariable().equals(this)) {
                  return substitution.getTerm();
              }
