@@ -5,6 +5,7 @@
 
 package com.yapnu.adt;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -14,12 +15,13 @@ import java.util.LinkedList;
  */
 public class Adt {
 
-    private Sort sort;
-    private HashMap<String, Constant> constants = new HashMap<String, Constant>();
-    private HashMap<String, OperationSignature> operationTerms = new HashMap<String, OperationSignature>();
-    private HashMap<String, Variable> variables = new HashMap<String, Variable>();
-    private HashMap<Term, Axiom> axioms = new HashMap<Term, Axiom>();
-    private HashMap<String, LinkedList<Axiom>> axiomPerName = new HashMap<String,LinkedList<Axiom>>();
+    private final Sort sort;
+    private final HashMap<String, Constant> constants = new HashMap<String, Constant>();
+    private final HashMap<String, OperationSignature> operationTerms = new HashMap<String, OperationSignature>();
+    private final HashMap<String, Variable> variables = new HashMap<String, Variable>();
+    private final HashMap<Term, Axiom> axioms = new HashMap<Term, Axiom>();
+    private final HashMap<String, LinkedList<Axiom>> axiomPerName = new HashMap<String,LinkedList<Axiom>>();
+    private final LinkedList<Sort> additionalCodomains = new LinkedList<Sort>();
 
     public Adt(Sort sort) {
         this.sort = sort;
@@ -27,6 +29,10 @@ public class Adt {
 
     public Sort getSort() {
         return sort;
+    }
+
+    public LinkedList<Sort> getAdditionalCodomains() {
+        return additionalCodomains;
     }
 
     public OperationSignature getOperationSignature(String name) {
@@ -51,6 +57,9 @@ public class Adt {
 
     public void addTerm(OperationSignature term) {        
         this.operationTerms.put(term.getName(), term);
+        if (!term.getSort().equals(this.sort)) {
+            this.additionalCodomains.add(term.getSort());
+        }
     }
 
     public boolean hasAxiom(Term leftTerm) {
