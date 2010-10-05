@@ -14,7 +14,7 @@ import java.util.Map.Entry;
  * @author adrien
  */
 public class SubstitutionBag {
-    LinkedHashMap<Variable, Term> substitutions = new LinkedHashMap<Variable, Term>();
+    private final LinkedHashMap<Variable, Term> substitutions = new LinkedHashMap<Variable, Term>();
 
     public SubstitutionBag() {
     }

@@ -52,9 +52,13 @@ public class Variable implements Term {
         if (other == null) {
             return false;
         }
-
+        
         if (!this.getSort().equals(other.getSort())) {
             return false;
+        }
+
+        if (other instanceof Variable) {
+            throw new IllegalArgumentException("Cannot substitute a variable with another one.");
         }
         
         return substitutions.tryAddSubstitution(this, other);        

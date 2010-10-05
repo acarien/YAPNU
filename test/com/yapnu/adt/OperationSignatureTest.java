@@ -5,7 +5,6 @@
 
 package com.yapnu.adt;
 
-import com.yapnu.adt.model.IntegerAdt;
 import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -46,7 +45,20 @@ public class OperationSignatureTest {
         assertNotSame("different domain (1)", term1, term3);
         assertNotSame("different domain (2)", term1, term4);
         assertNotSame("different codomain", term1, term5);
-
     }
+
+    public void testIsGenerator() {
+        ArrayList<Sort> domain = new ArrayList<Sort>();
+
+        assertFalse(new OperationSignature("term", domain, sort, false).isGenerator());
+        assertTrue(new OperationSignature("term", domain, sort, true).isGenerator());
+    }
+
+    /*public void testIsGenerator() {
+        ArrayList<Sort> domain = new ArrayList<Sort>();
+        domain.add(sort);
+
+        //Operation operation = new OperationSignature("term", domain, sort, false).instantiates(parameters));
+    }*/
 
 }
