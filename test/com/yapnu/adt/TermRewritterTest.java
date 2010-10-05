@@ -21,8 +21,7 @@ public class TermRewritterTest {
 
     /**
      * Test of Rewritte method, of class TermRewritter.
-     */
-    @Ignore
+     */    
     @Test
     public void testRewritteGenerators() {
         Adt adt = BooleanAdt.instance().getAdt();
@@ -37,8 +36,7 @@ public class TermRewritterTest {
 
     /**
      * Test of Rewritte method, of class TermRewritter.
-     */
-    @Ignore
+     */    
     @Test
     public void testRewritteAlreadyDefinedAxiom() {
         Adt adt = BooleanAdt.instance().getAdt();
@@ -49,8 +47,7 @@ public class TermRewritterTest {
         Term rewrittenTerm1 = rewritter.rewritte(term);
         assertEquals(rewrittenTerm1, adt.getConstant("true"));
     }
-
-    @Ignore
+    
     @Test
     public void testRewritteComplexTerm() {
         Adt adt = BooleanAdt.instance().getAdt();
@@ -68,8 +65,7 @@ public class TermRewritterTest {
         Term rewrittenTerm1 = rewritter.rewritte(term);
         assertEquals(rewrittenTerm1, adt.getConstant("true"));
     }
-
-    @Ignore
+    
     @Test
     public void testRewritteShortcutTerm() {
         Adt adt = new Adt(new Sort("bool"));
@@ -92,8 +88,7 @@ public class TermRewritterTest {
         Term rewrittenTerm1 = rewritter.rewritte(testTerm);
         assertEquals(rewrittenTerm1, falseTerm);
     }
-
-    @Ignore
+    
     @Test(expected=IllegalArgumentException.class)
     public void testRewritteVariableNotContainedInAxiom() {
         Adt adt = new Adt(new Sort("bool"));
@@ -107,8 +102,7 @@ public class TermRewritterTest {
         Term rewrittenTerm1 = rewritter.rewritte(variableX);
         assertEquals(rewrittenTerm1, falseTerm);
     }
-
-    @Ignore
+    
     @Test
     public void testRewritteVariableContainedInAxiom() {
         Adt adt = new Adt(new Sort("bool"));
@@ -125,8 +119,7 @@ public class TermRewritterTest {
         Term rewrittenTerm1 = rewritter.rewritte(variableX);
         assertEquals(rewrittenTerm1, falseTerm);
     }
-
-    @Ignore
+    
     @Test
     public void testRewritteAddFunction() {
         Adt adt = IntegerAdt.instance().getAdt();
@@ -167,8 +160,7 @@ public class TermRewritterTest {
         Term rewrittenTerm2 = rewritter.rewritte(equalsSignature.instantiates(zero, succSignature.instantiates(zero)));
         assertEquals(rewrittenTerm2, falseTerm);
         
-        Term rewrittenTerm3 = rewritter.rewritte(
-                equalsSignature.instantiates(succSignature.instantiates(zero), zero));
+        Term rewrittenTerm3 = rewritter.rewritte(equalsSignature.instantiates(succSignature.instantiates(zero), zero));
         assertEquals(rewrittenTerm3, falseTerm);
         
         Term rewrittenTerm4 = rewritter.rewritte(equalsSignature.instantiates(succSignature.instantiates(zero), succSignature.instantiates(zero)));
@@ -176,5 +168,27 @@ public class TermRewritterTest {
         
         Term rewrittenTerm = rewritter.rewritte(equalsSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero)), succSignature.instantiates(zero)));
         assertEquals(rewrittenTerm, falseTerm);        
+    }
+
+    @Test
+    public void testRewritteStrangeDomainFunction() {
+        ArrayList<Adt> adts = new ArrayList<Adt>();
+        Adt intAdt = IntegerAdt.instance().getAdt();
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+        adts.add(intAdt);
+        adts.add(boolAdt);
+
+        TermRewritter rewritter = new TermRewritter(adts);
+
+        Constant zero = intAdt.getConstant("0");
+        Constant trueTerm = boolAdt.getConstant("true");
+        Constant falseTerm = boolAdt.getConstant("false");
+
+        OperationSignature equalsSignature = new OperationSignature("dummy", false, intAdt.getSort(), intAdt.getSort(), boolAdt.getSort());
+        intAdt.addAxiom(new Axiom(equalsSignature.instantiates(zero, falseTerm), zero));
+
+        Operation and = boolAdt.getOperationSignature("and").instantiates(trueTerm, falseTerm);
+        Term rewrittenTerm = rewritter.rewritte(equalsSignature.instantiates(zero, and));
+        assertEquals(rewrittenTerm, zero);
     }
 }
