@@ -71,7 +71,7 @@ public class VariableTest {
         assertTrue(bag.size() == 0);
         bag.clear();
 
-        OperationSignature signature = new OperationSignature("succ", sort, sort, true);
+        OperationSignature signature = new OperationSignature("succ", true, sort, sort);
         Operation operation = signature.instantiates(new Constant("cte", sort));        
         assertTrue("variable substituted by operation", x.tryGetMatchingSubstitutions(operation, bag));
         assertTrue(bag.size() == 1);

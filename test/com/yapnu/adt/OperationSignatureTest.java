@@ -23,21 +23,13 @@ public class OperationSignatureTest {
     @Test
     public void testEquals() {
         Sort anotherSort = new Sort("anotherSort");
-        ArrayList<Sort> domain = new ArrayList<Sort>();
-        domain.add(sort);
-        domain.add(sort);
+        OperationSignature term1 = new OperationSignature("term", false, sort, sort, sort);
+        OperationSignature term1Cloned = new OperationSignature("term", false, sort, sort, sort);
+        OperationSignature term2 = new OperationSignature("term2", false, sort, sort, sort);
+        OperationSignature term3 = new OperationSignature("term", false, anotherSort, sort);
 
-        OperationSignature term1 = new OperationSignature("term", domain, sort, false);
-        OperationSignature term1Cloned = new OperationSignature("term", domain, sort, false);
-        OperationSignature term2 = new OperationSignature("term2", domain, sort, false);
-        OperationSignature term3 = new OperationSignature("term", anotherSort, sort, false);
-
-        ArrayList<Sort> anotherDomain = new ArrayList<Sort>();
-        anotherDomain.add(sort);
-        anotherDomain.add(anotherSort);
-
-        OperationSignature term4 = new OperationSignature("term", anotherDomain, sort, false);
-        OperationSignature term5 = new OperationSignature("term", domain, anotherSort, false);
+        OperationSignature term4 = new OperationSignature("term", false, sort, sort, anotherSort);
+        OperationSignature term5 = new OperationSignature("term", false, anotherSort, sort, sort);
 
         assertEquals("equals", term1, term1Cloned);
         assertEquals("symmetry", term1Cloned, term1);
@@ -48,10 +40,8 @@ public class OperationSignatureTest {
     }
 
     public void testIsGenerator() {
-        ArrayList<Sort> domain = new ArrayList<Sort>();
-
-        assertFalse(new OperationSignature("term", domain, sort, false).isGenerator());
-        assertTrue(new OperationSignature("term", domain, sort, true).isGenerator());
+        assertFalse(new OperationSignature("term", false, sort, sort).isGenerator());
+        assertTrue(new OperationSignature("term", true, sort, sort).isGenerator());
     }
 
     /*public void testIsGenerator() {

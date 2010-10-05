@@ -5,7 +5,7 @@
 
 package com.yapnu.adt;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -14,19 +14,11 @@ import java.util.ArrayList;
 public class OperationSignature {
 
     private final String name;
-    private final ArrayList<Sort> domain;
+    private final Sort[] domain;
     private final Sort codomain;
     private final boolean isGenerator;
 
-    public OperationSignature(String name, Sort domain, Sort codomain, boolean isGenerator) {
-        this.name = name;
-        this.domain = new ArrayList<Sort>();
-        this.domain.add(domain);
-        this.codomain = codomain;
-        this.isGenerator = isGenerator;
-    }
-
-    public OperationSignature(String name, ArrayList<Sort> domain, Sort codomain, boolean isGenerator) {
+    public OperationSignature(String name, boolean isGenerator, Sort codomain, Sort... domain) {
         this.name = name;
         this.domain = domain;
         this.codomain = codomain;
@@ -37,7 +29,7 @@ public class OperationSignature {
         return codomain;
     }
 
-    public ArrayList<Sort> getDomain() {
+    public Sort[] getDomain() {
         return domain;
     }
 
@@ -50,12 +42,12 @@ public class OperationSignature {
     }
 
     public Operation instantiates(Term... parameters) {
-        if (parameters.length != this.domain.size()){
+        if (parameters.length != this.domain.length){
             throw new IllegalArgumentException("The size of parameters is not equal to the arity of the operation.");
         }
 
         for (int i = 0; i < parameters.length; i++) {
-            if (!parameters[i].getSort().equals(this.domain.get(i)))
+            if (!parameters[i].getSort().equals(this.domain[i]))
             {
                 throw new IllegalArgumentException("Parameter " + parameters[i] + " has not the right domain.");
             }            
@@ -93,8 +85,8 @@ public class OperationSignature {
         if (this.codomain != other.codomain && (this.codomain == null || !this.codomain.equals(other.codomain))) {
             return false;
         }
-        
-        if (this.domain != other.domain && (this.domain == null || !this.domain.equals(other.domain))) {
+
+        if (!Arrays.deepEquals(this.domain, other.domain)) {
             return false;
         }
 

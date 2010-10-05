@@ -51,13 +51,9 @@ public class BooleanAdt {
         adt.addTerm(x);
         adt.addTerm(y);
 
-        ArrayList<Sort> domain = new ArrayList<Sort>();
-        domain.add(sort);
-        domain.add(sort);
-
-        OperationSignature andTerm = new OperationSignature("and", domain, sort, false);
-        OperationSignature orTerm = new OperationSignature("or", domain, sort, false);
-        OperationSignature notTerm = new OperationSignature("not", sort, sort, false);
+        OperationSignature andTerm = new OperationSignature("and", false, sort, sort, sort);
+        OperationSignature orTerm = new OperationSignature("or", false, sort, sort, sort);
+        OperationSignature notTerm = new OperationSignature("not", false, sort, sort);
         adt.addTerm(andTerm);
         adt.addTerm(orTerm);
         adt.addTerm(notTerm);                    

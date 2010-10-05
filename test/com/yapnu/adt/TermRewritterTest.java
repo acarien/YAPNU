@@ -79,12 +79,8 @@ public class TermRewritterTest {
         Constant trueTerm = new Constant("true", adt.getSort());
         adt.addTerm(falseTerm);
         adt.addTerm(trueTerm);
-
-        ArrayList<Sort> domain = new ArrayList<Sort>();
-        domain.add(adt.getSort());
-        domain.add(adt.getSort());
-
-        OperationSignature andSignature = new OperationSignature("and", domain, adt.getSort(), false);
+        
+        OperationSignature andSignature = new OperationSignature("and", false, adt.getSort(), adt.getSort(), adt.getSort());
         Variable variableX = new Variable("x", adt.getSort());
                                     
         Term axiomLeftTerm = andSignature.instantiates(falseTerm, variableX);

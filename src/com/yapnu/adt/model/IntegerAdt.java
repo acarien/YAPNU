@@ -37,12 +37,8 @@ public class IntegerAdt {
     public Adt getAdt() {
         Adt adt = new Adt(sort);
         
-        adt.addTerm(new Constant("0", sort));
-
-        ArrayList<Sort> unaryDomain = new ArrayList<Sort>();
-        unaryDomain.add(sort);
-        
-        adt.addTerm(new OperationSignature("succ", unaryDomain, sort, true));
+        adt.addTerm(new Constant("0", sort));                
+        adt.addTerm(new OperationSignature("succ", true, sort, sort));
                                 
         Variable x = new Variable("x", sort);
         Variable y = new Variable("y", sort);
@@ -56,11 +52,7 @@ public class IntegerAdt {
     }
 
     private static void addAddOperation(Adt adt) {
-        ArrayList<Sort> dyadicDomain = new ArrayList<Sort>();
-        dyadicDomain.add(sort);
-        dyadicDomain.add(sort);
-
-        OperationSignature add = new OperationSignature("add", dyadicDomain, sort, false);
+        OperationSignature add = new OperationSignature("add", false, sort, sort, sort);
         adt.addTerm(add);
 
         Variable x = adt.getVariable("x");
@@ -76,11 +68,7 @@ public class IntegerAdt {
     private static void addEqualsOperation(Adt adt) {
         Adt boolAdt = BooleanAdt.instance().getAdt();
 
-        ArrayList<Sort> dyadicDomain = new ArrayList<Sort>();
-        dyadicDomain.add(sort);
-        dyadicDomain.add(sort);
-
-        OperationSignature equals = new OperationSignature("=", dyadicDomain, boolAdt.getSort(), false);
+        OperationSignature equals = new OperationSignature("=", false, boolAdt.getSort(), sort, sort);
         adt.addTerm(equals);
 
         Variable x = adt.getVariable("x");
