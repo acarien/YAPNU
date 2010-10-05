@@ -14,6 +14,14 @@ public class Variable implements Term {
     private final String name;
 
     public Variable(String name, Sort sort) {
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Variable name cannot be null or empty.");
+        }
+
+        if (sort == null) {
+            throw new IllegalArgumentException("Variable sort cannot be null.");
+        }
+        
         this.sort = sort;
         this.name = name;
     }

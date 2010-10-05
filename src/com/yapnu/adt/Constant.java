@@ -15,6 +15,14 @@ public class Constant implements Term {
     private final Sort sort;
 
     public Constant(String name, Sort sort) {
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Constant name cannot be null or empty.");
+        }
+
+        if (sort == null) {
+            throw new IllegalArgumentException("Constant sort cannot be null.");
+        }
+
         this.name = name;
         this.sort = sort;
     }

@@ -19,6 +19,18 @@ public class OperationSignature {
     private final boolean isGenerator;
 
     public OperationSignature(String name, boolean isGenerator, Sort codomain, Sort... domain) {
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("OperationSignature name cannot be null or empty.");
+        }
+
+        if (codomain == null) {
+            throw new IllegalArgumentException("OperationSignature codomain cannot be null.");
+        }
+
+        if (domain == null || domain.length == 0) {
+            throw new IllegalArgumentException("OperationSignature domain cannot be null.");
+        }
+
         this.name = name;
         this.domain = domain;
         this.codomain = codomain;
