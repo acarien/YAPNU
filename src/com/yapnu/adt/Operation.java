@@ -4,7 +4,10 @@
  */
 package com.yapnu.adt;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  *
@@ -15,9 +18,10 @@ public class Operation implements Term {
     private final OperationSignature signature;
     private final Term[] parameters;
 
-    public Operation(OperationSignature signature, Term[] parameters) {
+    Operation(OperationSignature signature, Term[] parameters) {
         this.signature = signature;
         this.parameters = parameters;
+        this.variablesMustHaveSameSort();
     }
 
     public Term[] getParameters() {
@@ -50,6 +54,16 @@ public class Operation implements Term {
     @Override
     public int size() {
         return this.parameters.length + 1;
+    }
+
+    @Override
+    public ImmutableSet<Variable> getVariables() {
+        Builder<Variable> builder = ImmutableSet.builder();
+        for (Term parameter : this.parameters) {
+            builder.addAll(parameter.getVariables());
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -153,5 +167,19 @@ public class Operation implements Term {
 
         builder.append(")");
         return builder.toString();
-    }   
+    }
+
+    private void variablesMustHaveSameSort() {
+        ImmutableSet<Variable> variables = this.getVariables();
+        HashMap<String, Variable> conflicts = new HashMap<String, Variable>();
+        for (Variable variable : variables) {
+            if (conflicts.containsKey(variable.getName()) &&
+                !variable.getSort().equals(conflicts.get(variable.getName()).getSort())) {
+                throw new IllegalArgumentException("Variables having the same name must be of the same sort.");
+            }
+            else {
+                conflicts.put(variable.getName(), variable);
+            }
+        }
+    }
 }

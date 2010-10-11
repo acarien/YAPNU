@@ -8,7 +8,6 @@ package com.yapnu.adt;
 import com.yapnu.adt.model.BooleanAdt;
 import com.yapnu.adt.model.IntegerAdt;
 import java.util.ArrayList;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

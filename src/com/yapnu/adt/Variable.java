@@ -5,6 +5,8 @@
 
 package com.yapnu.adt;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  *
  * @author adrien
@@ -51,6 +53,11 @@ public class Variable implements Term {
         return false;
     }
 
+    @Override
+    public ImmutableSet<Variable> getVariables() {
+        return ImmutableSet.of(this);
+    }
+    
     @Override
     public boolean tryGetMatchingSubstitutions(Term other, SubstitutionBag substitutions) {
         if (substitutions == null) {

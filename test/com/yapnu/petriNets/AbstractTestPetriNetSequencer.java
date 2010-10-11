@@ -5,6 +5,8 @@
 
 package com.yapnu.petriNets;
 
+import com.yapnu.petriNet.PetriNetSequencer;
+import com.yapnu.petriNet.PetriNet;
 import java.util.LinkedList;
 import java.util.Random;
 import org.junit.Assert;

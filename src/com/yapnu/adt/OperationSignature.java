@@ -59,6 +59,10 @@ public class OperationSignature {
         }
 
         for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i] == null) {
+                throw new IllegalArgumentException("A parameter cannot be null.");
+            }
+
             if (!parameters[i].getSort().equals(this.domain[i]))
             {
                 throw new IllegalArgumentException("Parameter " + parameters[i] + " has not the right domain.");

@@ -10,7 +10,6 @@ import com.yapnu.adt.Constant;
 import com.yapnu.adt.OperationSignature;
 import com.yapnu.adt.Sort;
 import com.yapnu.adt.Variable;
-import java.util.ArrayList;
 
 /**
  *
@@ -23,7 +22,7 @@ public class BooleanAdt {
     private static BooleanAdt instance;
 
     private BooleanAdt() {
-        this.adt = BuildAdt();
+        this.adt = buildAdt();
     }
 
     public static BooleanAdt instance() {
@@ -38,7 +37,7 @@ public class BooleanAdt {
         return adt;
     }
 
-    private static Adt BuildAdt() {
+    private static Adt buildAdt() {
         Adt adt = new Adt(sort);
 
         Constant trueTerm = new Constant("true", sort);

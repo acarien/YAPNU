@@ -5,6 +5,9 @@
 
 package com.yapnu.petriNets;
 
+import com.yapnu.petriNet.PetriNetSequencer;
+import com.yapnu.petriNet.PetriNet;
+import com.yapnu.petriNet.PetriNetFastSequencer;
 import java.util.Random;
 
 /**

@@ -205,4 +205,15 @@ public class OperationTest {
       Constant zero = adt.getConstant("0");
       assertTrue(new OperationSignature("succ", true, adt.getSort(), adt.getSort()).instantiates(zero).size() == 2);
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testVariableWithSameNameButDifferentTypeAsParameters() {
+        Sort dummySort = new Sort("dummy");
+        Sort stupidSort = new Sort("stupid");
+        Variable dummyX = new Variable("x", dummySort);
+        Variable stupidX = new Variable("x", stupidSort);
+
+        OperationSignature opSignature = new OperationSignature("op", false, dummySort, dummySort, stupidSort);
+        opSignature.instantiates(dummyX, stupidX);
+    }
 }

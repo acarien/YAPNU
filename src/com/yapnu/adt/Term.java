@@ -5,6 +5,8 @@
 
 package com.yapnu.adt;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  *
  * @author adrien
@@ -16,5 +18,6 @@ public interface Term {
     int size();
     boolean isNormalForm();    
     Term substitutes(SubstitutionBag substitutions);
-    boolean tryGetMatchingSubstitutions(Term other, SubstitutionBag bag);    
+    boolean tryGetMatchingSubstitutions(Term other, SubstitutionBag bag);
+    ImmutableSet<Variable> getVariables();
 }

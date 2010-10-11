@@ -11,7 +11,6 @@ import com.yapnu.adt.Constant;
 import com.yapnu.adt.OperationSignature;
 import com.yapnu.adt.Sort;
 import com.yapnu.adt.Variable;
-import java.util.ArrayList;
 
 /**
  *
@@ -23,7 +22,7 @@ public class IntegerAdt {
     private static IntegerAdt instance;
 
     private IntegerAdt() {
-        this.adt = getAdt();
+        this.adt = buildAdt();
     }
 
     public static IntegerAdt instance() {
@@ -34,12 +33,16 @@ public class IntegerAdt {
         return instance;
     }
 
-    public Adt getAdt() {
+    public Adt getAdt() {      
+        return adt;
+    }
+
+    private Adt buildAdt() {
         Adt adt = new Adt(sort);
-        
-        adt.addTerm(new Constant("0", sort));                
+
+        adt.addTerm(new Constant("0", sort));
         adt.addTerm(new OperationSignature("succ", true, sort, sort));
-                                
+
         Variable x = new Variable("x", sort);
         Variable y = new Variable("y", sort);
         adt.addTerm(x);

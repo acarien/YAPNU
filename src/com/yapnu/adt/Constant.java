@@ -5,6 +5,8 @@
 
 package com.yapnu.adt;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  *
  * @author adrien
@@ -64,6 +66,11 @@ public class Constant implements Term {
     @Override
     public Constant substitutes(SubstitutionBag substitutions) {
         return this;
+    }
+
+    @Override
+    public ImmutableSet<Variable> getVariables() {
+        return ImmutableSet.of();
     }
 
     @Override
