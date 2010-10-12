@@ -40,9 +40,8 @@ public class Operation implements Term {
     public String getName() {
         return this.signature.getName();
     }
-
-    @Override
-    public boolean isGenerator() {
+    
+    private boolean isGenerator() {
         return this.signature.isGenerator();
     }
 
@@ -71,7 +70,12 @@ public class Operation implements Term {
         if (substitutions == null) {
             throw new IllegalArgumentException("Substitutions cannot be null.");
         }
-
+        
+        if (other instanceof Variable) {
+            substitutions.tryAddSubstitution(this, other);
+            return true;
+        }
+        
         if (!(other instanceof Operation)) {
             return false;
         }
@@ -106,7 +110,7 @@ public class Operation implements Term {
 
    @Override
     public boolean isNormalForm() {
-       if (!isGenerator()) {
+       if (!this.isGenerator()) {
            return false;
        }
 

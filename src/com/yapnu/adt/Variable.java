@@ -37,12 +37,7 @@ public class Variable implements Term {
     public Sort getSort() {
         return sort;
     }
-
-    @Override
-    public boolean isGenerator() {
-        return false;
-    }
-
+    
     @Override
     public int size() {
         return 1;
@@ -67,15 +62,15 @@ public class Variable implements Term {
         if (other == null) {
             return false;
         }
-        
-        if (!this.getSort().equals(other.getSort())) {
+
+        if (this.equals(other)) {
             return false;
         }
 
-        if (other instanceof Variable) {
-            throw new IllegalArgumentException("Cannot substitute a variable with another one.");
+        if (!this.getSort().equals(other.getSort())) {
+            return false;
         }
-        
+               
         return substitutions.tryAddSubstitution(this, other);        
     }
 
@@ -86,8 +81,8 @@ public class Variable implements Term {
         }
 
          for (Substitution substitution : substitutions.getSubstitutions()) {
-             if (substitution.getVariable().equals(this)) {
-                 return substitution.getTerm();
+             if (substitution.getSubstituted().equals(this)) {
+                 return substitution.getValue();
              }
          }
 

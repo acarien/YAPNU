@@ -14,7 +14,7 @@ import java.util.Map.Entry;
  * @author adrien
  */
 public class SubstitutionBag {
-    private final LinkedHashMap<Variable, Term> substitutions = new LinkedHashMap<Variable, Term>();
+    private final LinkedHashMap<Term, Term> substitutions = new LinkedHashMap<Term, Term>();
 
     public SubstitutionBag() {
     }
@@ -38,31 +38,35 @@ public class SubstitutionBag {
             throw new IllegalArgumentException("Substitution cannot be null.");
         }
 
-        return this.tryAddSubstitution(substitution.getVariable(), substitution.getTerm());
+        return this.tryAddSubstitution(substitution.getSubstituted(), substitution.getValue());
     }
 
-    public boolean tryAddSubstitution(Variable variable, Term term) {
-        if (variable == null) {
-            throw new IllegalArgumentException("Variable cannot be null.");
+    public boolean tryAddSubstitution(Term substituted, Term value) {
+        if (substituted == null) {
+            throw new IllegalArgumentException("Substituted cannot be null.");
         }
 
-        if (term == null) {
-            throw new IllegalArgumentException("Term cannot be null.");
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null.");
         }
 
-        if (this.substitutions.containsKey(variable)) {
-            return this.substitutions.get(variable).equals(term);
+        if (!((substituted instanceof Variable) || (value instanceof Variable))) {
+            throw new IllegalArgumentException("One of the members of the substitution must be a variable.");
+        }
+        
+        if (this.substitutions.containsKey(substituted)) {
+            return this.substitutions.get(substituted).equals(value);
         }
         else {
-            this.substitutions.put(variable, term);
+            this.substitutions.put(substituted, value);
             return true;
         }
     }
    
     public ArrayList<Substitution> getSubstitutions() {
         ArrayList<Substitution> ret = new ArrayList<Substitution>();
-        for (Entry<Variable, Term> entry : substitutions.entrySet()) {
-            ret.add(new Substitution(entry.getKey(), entry.getValue()));
+        for (Entry<Term, Term> entry : substitutions.entrySet()) {
+            ret.add(Substitution.creates(entry.getKey(), entry.getValue()));
         }
 
         return ret;
@@ -77,4 +81,6 @@ public class SubstitutionBag {
 
         return builder.toString();
     }
+
+    
 }

@@ -45,8 +45,8 @@ public class OperationTest {
         assertFalse(and.tryGetMatchingSubstitutions(falseCte, bag));
         assertTrue(bag.size() == 0);
 
-        assertFalse(and.tryGetMatchingSubstitutions(new Variable("x", adt.getSort()), bag));
-        assertTrue(bag.size() == 0);
+        assertTrue(and.tryGetMatchingSubstitutions(new Variable("x", adt.getSort()), bag));
+        assertTrue(bag.size() == 1);
     }
 
     @Test
@@ -60,11 +60,11 @@ public class OperationTest {
 
         SubstitutionBag bag = new SubstitutionBag();
         boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag);
-        assertTrue("Can substitue ", canSubstitute1);
-        assertTrue("One variable substitued ", bag.size() == 0);
+        assertTrue("Can substitute ", canSubstitute1);
+        assertTrue("No variable substituted ", bag.size() == 0);
         bag.clear();
 
-        boolean canSubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, trueCte), bag);
+        boolean canSubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, falseCte), bag);
         assertFalse("Cannot substitute ", canSubstitute2);
     }
 
@@ -79,8 +79,8 @@ public class OperationTest {
 
         SubstitutionBag bag = new SubstitutionBag();        
         boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag);
-        assertTrue("Can substitue ", canSubstitute1);
-        assertTrue("One variable substitued ", bag.size() == 1);
+        assertTrue("Can substitute ", canSubstitute1);
+        assertTrue("One variable substituted ", bag.size() == 1);
         assertTrue("Is the right substitution ", bag.getSubstitutions().get(0).equals(new Substitution(adt.getVariable("x"), falseCte)));
         bag.clear();
         
@@ -99,8 +99,8 @@ public class OperationTest {
         
         SubstitutionBag bag1 = new SubstitutionBag();
         boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag1);
-        assertTrue("Can substitue ", canSubstitute1);
-        assertTrue("One variable substitued ", bag1.size() == 1);
+        assertTrue("Can substitute ", canSubstitute1);
+        assertTrue("One variable substituted ", bag1.size() == 1);
         assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(adt.getVariable("x"), falseCte)));
 
         SubstitutionBag bag2 = new SubstitutionBag();        
@@ -125,10 +125,51 @@ public class OperationTest {
         boolean canSubstitute = succ.tryGetMatchingSubstitutions(
                 succSignature.instantiates(addSignature.instantiates(succSignature.instantiates(zero), zero)),
                 bag);
-        assertTrue("Can substitue ", canSubstitute);
-        assertTrue("One variable substitued ", bag.size() == 1);
+        assertTrue("Can substitute ", canSubstitute);
+        assertTrue("One variable substituted ", bag.size() == 1);
         assertTrue("Is the right substitution ", bag.getSubstitutions().get(0).equals(new Substitution(variableX, succSignature.instantiates(zero))));
-    }   
+    }
+
+    @Test
+    public void testIsValidSubstitutionVariableSubstitutedWithOperation() {
+        Sort sort = new Sort("sort");
+        OperationSignature fSignature = new OperationSignature("f", false, sort, sort);
+        OperationSignature gSignature = new OperationSignature("g", false, sort, sort);
+        Variable varA = new Variable("A", sort);
+        Variable varB = new Variable("B", sort);
+        Constant cte = new Constant("cte", sort);
+
+        Term originalTerm = fSignature.instantiates(gSignature.instantiates(varA));
+        SubstitutionBag bag = new SubstitutionBag();
+        boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(varB), bag);
+        assertTrue("Can substitute", canSubstitute);
+        assertTrue(bag.getSubstitutions().size() == 1);
+        assertTrue(bag.getSubstitutions().get(0).getSubstituted().equals(varB));
+        assertTrue(bag.getSubstitutions().get(0).getValue().equals(gSignature.instantiates(varA)));
+    }
+
+    @Test
+    public void testIsValidSubstitution() {
+        Sort sort = new Sort("sort");
+        OperationSignature fSignature = new OperationSignature("f", false, sort, sort, sort);
+        OperationSignature gSignature = new OperationSignature("g", false, sort, sort);
+        Variable varA = new Variable("A", sort);
+        Variable varB = new Variable("B", sort);
+        Constant cte = new Constant("cte", sort);
+
+        Term originalTerm = fSignature.instantiates(gSignature.instantiates(varA), varA);
+        SubstitutionBag bag = new SubstitutionBag();
+        boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(varB, cte), bag);
+        assertTrue("Can substitute", canSubstitute);
+        assertTrue(bag.getSubstitutions().size() == 2);
+        for (Substitution subs : bag.getSubstitutions()) {
+            System.out.println(subs);
+        }
+        assertTrue(bag.getSubstitutions().get(1).getSubstituted().equals(varA));
+        assertTrue(bag.getSubstitutions().get(1).getValue().equals(cte));
+        assertTrue(bag.getSubstitutions().get(0).getSubstituted().equals(varB));
+        assertTrue(bag.getSubstitutions().get(0).getValue().equals(gSignature.instantiates(cte)));
+    }
 
     @Test
     public void testInstantiationWithSubstitutionOneVariableInSeveralTerms(){
@@ -189,14 +230,6 @@ public class OperationTest {
         assertFalse(succ.instantiates(succ.instantiates(variableX)).isNormalForm());       
                 
         assertFalse(succ.instantiates(add.instantiates(zero, zero)).isNormalForm());
-    }
-
-    @Test
-    public void testIsGenerator() {
-      Adt adt = IntegerAdt.instance().getAdt();
-      Constant zero = adt.getConstant("0");
-      assertTrue(new OperationSignature("succ", true, adt.getSort(), adt.getSort()).instantiates(zero).isGenerator());
-      assertFalse(new OperationSignature("succ", false, adt.getSort(), adt.getSort()).instantiates(zero).isGenerator());
     }
 
     @Test

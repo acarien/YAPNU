@@ -35,13 +35,9 @@ public class ConstantTest {
     }
 
     @Test
-    public void testIsGenerator() {
-        assertTrue(this.term.isGenerator());
-    }
-
-    @Test
     public void testIsNormalForm() {
-        assertTrue(this.term.isNormalForm());
+        assertTrue(term.isNormalForm());
+        assertFalse(new Constant("awd", sort, false).isNormalForm());
     }
 
     @Test
@@ -51,9 +47,10 @@ public class ConstantTest {
 
     @Test
     public void testIsValidSubstitution() {
-        assertTrue("'substitued' with the same term", this.term.tryGetMatchingSubstitutions(new Constant("term", sort), null));
-        assertFalse("'substitued' with another term", this.term.tryGetMatchingSubstitutions(new Constant("anotherTerm", sort), null));
-        assertFalse("'substitued' with nullterm", this.term.tryGetMatchingSubstitutions(null, null));
+        SubstitutionBag bag = new SubstitutionBag();
+        assertTrue("'substitued' with the same term", this.term.tryGetMatchingSubstitutions(new Constant("term", sort), bag));
+        assertFalse("'substitued' with another term", this.term.tryGetMatchingSubstitutions(new Constant("anotherTerm", sort), bag));
+        assertFalse("'substitued' with nullterm", this.term.tryGetMatchingSubstitutions(null, bag));
     }
 
     @Test

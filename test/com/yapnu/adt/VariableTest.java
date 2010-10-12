@@ -41,11 +41,6 @@ public class VariableTest {
     }
 
     @Test
-    public void testIsNotGenereator() {
-        assertFalse(x.isGenerator());
-    }
-
-    @Test
     public void testIsNotNormalForm() {
         assertFalse(x.isNormalForm());
     }
@@ -64,6 +59,10 @@ public class VariableTest {
         bag.clear();
 
         assertTrue("variable substituted by cte", x.tryGetMatchingSubstitutions(new Constant("cte", sort), bag));
+        assertTrue(bag.size() == 1);
+        bag.clear();
+
+        assertTrue("variable substituted by another variable", x.tryGetMatchingSubstitutions(new Variable("y", sort), bag));
         assertTrue(bag.size() == 1);
         bag.clear();
 

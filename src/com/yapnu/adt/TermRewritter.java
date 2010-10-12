@@ -66,7 +66,7 @@ public class TermRewritter {
             throw new IllegalArgumentException("Cannot rewrite a null term.");
         }
 
-        while (!(currentTerm.isGenerator() && currentTerm.isNormalForm())) {
+        while (!currentTerm.isNormalForm()) {
 
             if (!this.adts.containsKey(currentTerm.getSort())) {
                 throw new IllegalArgumentException("Cannot rewrite a term of the sort " + currentTerm.getSort().toString() + ".");

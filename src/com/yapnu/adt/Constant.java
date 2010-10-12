@@ -15,8 +15,13 @@ public class Constant implements Term {
 
     private final String name;
     private final Sort sort;
+    private final boolean isGenerator;
 
     public Constant(String name, Sort sort) {
+        this(name, sort, true);
+    }
+
+    public Constant(String name, Sort sort, boolean isGenerator) {
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Constant name cannot be null or empty.");
         }
@@ -27,6 +32,7 @@ public class Constant implements Term {
 
         this.name = name;
         this.sort = sort;
+        this.isGenerator = isGenerator;
     }
 
     @Override
@@ -40,11 +46,6 @@ public class Constant implements Term {
     }
 
     @Override
-    public boolean isGenerator() {
-        return true;
-    }
-
-    @Override
     public String toString() {
         return this.name;
     }
@@ -55,11 +56,23 @@ public class Constant implements Term {
     }
 
     public boolean isNormalForm() {
-        return true;
+        return this.isGenerator;
     }
 
     @Override
-    public boolean tryGetMatchingSubstitutions(Term other, SubstitutionBag bag) {
+    public boolean tryGetMatchingSubstitutions(Term other, SubstitutionBag substitutions) {
+        if (substitutions == null) {
+            throw new IllegalArgumentException("Substitutions cannot be null.");
+        }
+
+        if (other == null) {
+            return false;
+        }
+
+        if (other instanceof Variable) {
+            substitutions.tryAddSubstitution(this, other);
+        }
+        
         return this.equals(other);
     }
 

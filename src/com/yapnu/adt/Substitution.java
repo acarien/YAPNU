@@ -10,32 +10,48 @@ package com.yapnu.adt;
  * @author adrien
  */
 public class Substitution {
-    private Variable variable;
-    private Term term;
+    private Term substituted;
+    private Term value;
 
-    public Substitution(Variable variable, Term term) {
-        if (variable == null) {
-            throw new IllegalArgumentException("Variable cannot be null.");
+    public static Substitution creates(Term substituted, Term value) {
+        if (substituted instanceof Variable) {
+            return new Substitution((Variable) substituted, value);
         }
 
-        if (term == null) {
-            throw new IllegalArgumentException("Term cannot be null.");
+        if (!(value instanceof Variable)) {
+            throw new IllegalArgumentException("One of the arguments must be a variable.");
         }
 
-        if (!term.getSort().equals(variable.getSort())) {
+        return new Substitution(substituted, (Variable) value);
+    }
+
+    public Substitution(Variable substituted, Term value) {
+        if (substituted == null) {
+            throw new IllegalArgumentException("Substituted cannot be null.");
+        }
+
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null.");
+        }
+
+        if (!value.getSort().equals(substituted.getSort())) {
             throw new IllegalArgumentException("Each member of a substitution must be of the same sort.");
         }
 
-        this.variable = variable;
-        this.term = term;
+        this.substituted = substituted;
+        this.value = value;
     }
 
-    public Term getTerm() {
-        return term;
+    public Substitution(Term substituted, Variable value) {
+        this(value, substituted);
     }
 
-    public Variable getVariable() {
-        return variable;
+    public Term getValue() {
+        return value;
+    }
+
+    public Term getSubstituted() {
+        return substituted;
     }
 
     @Override
@@ -47,10 +63,10 @@ public class Substitution {
             return false;
         }
         final Substitution other = (Substitution) obj;
-        if (this.variable != other.variable && (this.variable == null || !this.variable.equals(other.variable))) {
+        if (this.substituted != other.substituted && (this.substituted == null || !this.substituted.equals(other.substituted))) {
             return false;
         }
-        if (this.term != other.term && (this.term == null || !this.term.equals(other.term))) {
+        if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
             return false;
         }
         return true;
@@ -59,12 +75,12 @@ public class Substitution {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 53 * hash + (this.variable != null ? this.variable.hashCode() : 0);
+        hash = 53 * hash + (this.substituted != null ? this.substituted.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return "<" + variable.getName() + ", " + term.toString() + ">";
+        return "<" + substituted.getName() + ", " + value.toString() + ">";
     }
 }

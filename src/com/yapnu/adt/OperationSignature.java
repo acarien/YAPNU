@@ -90,10 +90,6 @@ public class OperationSignature {
             return false;
         }
 
-        if (this.isGenerator != other.isGenerator) {
-            return false;
-        }
-
         if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
             return false;
         }
