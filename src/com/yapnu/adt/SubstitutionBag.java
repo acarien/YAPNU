@@ -5,16 +5,20 @@
 
 package com.yapnu.adt;
 
+import com.google.common.collect.HashMultimap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  *
  * @author adrien
  */
 public class SubstitutionBag {
-    private final LinkedHashMap<Term, Term> substitutions = new LinkedHashMap<Term, Term>();
+    private final LinkedHashMap<Variable, Term> substitutions = new LinkedHashMap<Variable, Term>();
+    private boolean hasBeenModified = false;
+    private boolean isRecomputing = false;
 
     public SubstitutionBag() {
     }
@@ -23,10 +27,13 @@ public class SubstitutionBag {
         for (Substitution substitution : substitutions) {
             this.tryAddSubstitution(substitution);
         }
+
+        this.hasBeenModified = true;
     }
 
     public void clear() {
         this.substitutions.clear();
+        this.hasBeenModified = false;
     }
 
     public int size() {
@@ -41,42 +48,85 @@ public class SubstitutionBag {
         return this.tryAddSubstitution(substitution.getSubstituted(), substitution.getValue());
     }
 
-    public boolean tryAddSubstitution(Term substituted, Term value) {
+    public boolean tryAddSubstitution(Variable substituted, Term value) {
         if (substituted == null) {
             throw new IllegalArgumentException("Substituted cannot be null.");
         }
 
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null.");
-        }
-
-        if (!((substituted instanceof Variable) || (value instanceof Variable))) {
-            throw new IllegalArgumentException("One of the members of the substitution must be a variable.");
-        }
+        }        
         
         if (this.substitutions.containsKey(substituted)) {
             return this.substitutions.get(substituted).equals(value);
         }
         else {
             this.substitutions.put(substituted, value);
+            this.hasBeenModified = true;
             return true;
         }
     }
-   
-    public ArrayList<Substitution> getSubstitutions() {
-        ArrayList<Substitution> ret = new ArrayList<Substitution>();
-        for (Entry<Term, Term> entry : substitutions.entrySet()) {
-            ret.add(Substitution.creates(entry.getKey(), entry.getValue()));
-        }
 
-        return ret;
+    public boolean hasSubstitution(Variable substituted) {
+        return this.substitutions.containsKey(substituted);
+    }
+    
+    public Term getValue(Variable substituted) {
+        this.needToComputeSubstitutions();
+        return this.substitutions.get(substituted);
+    }
+
+    private void needToComputeSubstitutions() {
+        if (this.hasBeenModified && this.substitutions.size() > 1 && !this.isRecomputing) {
+            this.isRecomputing = true;
+            this.computeSubstitutions();
+            this.hasBeenModified = false;
+            this.isRecomputing = false;
+        }
+    }
+
+    private void computeSubstitutions() {
+        HashMultimap<Variable, Variable> variableDependencies = this.getVariableDependencies();
+        TopologicalSort<Variable> sort = new TopologicalSort<Variable>(variableDependencies);
+        sort.sort();
+        
+        ArrayList<Variable> variables = new ArrayList<Variable>(sort.getSortedElements());
+        for (Variable variable : variables) {
+            Term originalSubstitution = this.substitutions.get(variable);
+            if (originalSubstitution == null) {
+                continue;
+            }
+
+            this.substitutions.remove(variable);
+            Term finalSubstitution = originalSubstitution.substitutes(this);            
+            this.tryAddSubstitution(variable, finalSubstitution);
+        }
+    }
+
+    private HashMultimap<Variable, Variable> getVariableDependencies() {
+        HashMultimap<Variable, Variable> connectivityList = HashMultimap.create();
+        for (Entry<Variable, Term> entry : substitutions.entrySet()) {
+            Set<Variable> dependentVariables = entry.getValue().getVariables();
+            if (dependentVariables.size() == 0) {
+                connectivityList.put(entry.getKey(), null);
+            } else {
+                connectivityList.putAll(entry.getKey(), dependentVariables);
+            }
+        }
+        
+        return connectivityList;
     }
 
     @Override
     public String toString() {
+        this.needToComputeSubstitutions();
+
         StringBuilder builder = new StringBuilder();
-        for (Substitution substitution : this.getSubstitutions()) {
-            builder.append(substitution.toString());
+        for (Entry<Variable, Term> substitution : this.substitutions.entrySet()) {
+            builder.append("<");
+            builder.append(substitution.getKey());
+            builder.append(", ");
+            builder.append(">");
         }
 
         return builder.toString();

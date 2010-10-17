@@ -10,6 +10,7 @@ import com.yapnu.adt.Axiom;
 import com.yapnu.adt.Constant;
 import com.yapnu.adt.OperationSignature;
 import com.yapnu.adt.Sort;
+import com.yapnu.adt.Term;
 import com.yapnu.adt.Variable;
 
 /**
@@ -17,9 +18,9 @@ import com.yapnu.adt.Variable;
  * @author adrien
  */
 public class IntegerAdt {
-    private static final Sort sort = new Sort("int");
-    private final Adt adt;
+    private static final Sort sort = new Sort("int");    
     private static IntegerAdt instance;
+    private final Adt adt;
 
     private IntegerAdt() {
         this.adt = buildAdt();
@@ -37,11 +38,29 @@ public class IntegerAdt {
         return adt;
     }
 
+    public Term getNumber(int number) {
+        if (number < 0) {
+            throw new IllegalArgumentException("Only positive number.");
+        }
+
+        if (number == 0) {
+            return this.adt.getConstant("0");
+        }
+
+        Term result = this.adt.getConstant("0");
+        OperationSignature succSignature = this.adt.getOperationSignature("succ");
+        for (int i = 0; i < number; i++) {
+            result = succSignature.instantiates(result);
+        }
+
+        return result;
+    }
+
     private Adt buildAdt() {
         Adt adt = new Adt(sort);
 
         adt.addTerm(new Constant("0", sort));
-        adt.addTerm(new OperationSignature("succ", true, sort, sort));
+        adt.addOperationSignature(new OperationSignature("succ", true, sort, sort));
 
         Variable x = new Variable("x", sort);
         Variable y = new Variable("y", sort);
@@ -56,7 +75,7 @@ public class IntegerAdt {
 
     private static void addAddOperation(Adt adt) {
         OperationSignature add = new OperationSignature("add", false, sort, sort, sort);
-        adt.addTerm(add);
+        adt.addOperationSignature(add);
 
         Variable x = adt.getVariable("x");
         Variable y = adt.getVariable("y");
@@ -72,7 +91,7 @@ public class IntegerAdt {
         Adt boolAdt = BooleanAdt.instance().getAdt();
 
         OperationSignature equals = new OperationSignature("=", false, boolAdt.getSort(), sort, sort);
-        adt.addTerm(equals);
+        adt.addOperationSignature(equals);
 
         Variable x = adt.getVariable("x");
         Variable y = adt.getVariable("y");

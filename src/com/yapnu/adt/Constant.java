@@ -70,7 +70,7 @@ public class Constant implements Term {
         }
 
         if (other instanceof Variable) {
-            substitutions.tryAddSubstitution(this, other);
+            other.tryGetMatchingSubstitutions(this, substitutions);
         }
         
         return this.equals(other);

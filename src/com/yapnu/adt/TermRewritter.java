@@ -88,7 +88,7 @@ public class TermRewritter {
                 continue;
             }           
 
-             if (currentTerm.equals(previousTerm) || currentTerm instanceof Variable) {                 
+            if (currentTerm.equals(previousTerm) || currentTerm instanceof Variable) {                 
                 throw new IllegalArgumentException("Cannot rewrite the term " + previousTerm + ".");
             }  
 

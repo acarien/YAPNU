@@ -53,9 +53,9 @@ public class BooleanAdt {
         OperationSignature andTerm = new OperationSignature("and", false, sort, sort, sort);
         OperationSignature orTerm = new OperationSignature("or", false, sort, sort, sort);
         OperationSignature notTerm = new OperationSignature("not", false, sort, sort);
-        adt.addTerm(andTerm);
-        adt.addTerm(orTerm);
-        adt.addTerm(notTerm);                    
+        adt.addOperationSignature(andTerm);
+        adt.addOperationSignature(orTerm);
+        adt.addOperationSignature(notTerm);
 
         Axiom andAxiom1 = new Axiom(andTerm.instantiates(falseTerm, falseTerm), falseTerm);
         Axiom andAxiom2 = new Axiom(andTerm.instantiates(falseTerm, trueTerm), falseTerm);

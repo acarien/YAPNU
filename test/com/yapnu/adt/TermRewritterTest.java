@@ -38,13 +38,20 @@ public class TermRewritterTest {
      */    
     @Test
     public void testRewritteAlreadyDefinedAxiom() {
-        Adt adt = BooleanAdt.instance().getAdt();
-        TermRewritter rewritter = new TermRewritter(adt);
-        
-        Term term = adt.getOperationSignature("not").instantiates(adt.getConstant("false"));
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+        TermRewritter rewritter1 = new TermRewritter(boolAdt);
 
-        Term rewrittenTerm1 = rewritter.rewritte(term);
-        assertEquals(rewrittenTerm1, adt.getConstant("true"));
+        /*Term finalTerm = boolAdt.getOperationSignature("not").instantiates(boolAdt.getConstant("false"));
+        assertEquals("rewritte an already defined axiom", rewritter1.rewritte(finalTerm), boolAdt.getConstant("true"));*/
+
+
+        Adt intAdt = IntegerAdt.instance().getAdt();
+        TermRewritter rewritter2 = new TermRewritter(intAdt);
+        intAdt.addTerm(new Constant("2", intAdt.getSort(), false));
+        OperationSignature succ = intAdt.getOperationSignature("succ");
+        Term two = succ.instantiates(succ.instantiates(intAdt.getConstant("0")));
+        intAdt.addAxiom(new Axiom(intAdt.getConstant("2"), two));
+        assertEquals("rewritte an already defined axiom", rewritter2.rewritte(intAdt.getConstant("2")), two);
     }
     
     @Test
@@ -189,5 +196,27 @@ public class TermRewritterTest {
         Operation and = boolAdt.getOperationSignature("and").instantiates(trueTerm, falseTerm);
         Term rewrittenTerm = rewritter.rewritte(equalsSignature.instantiates(zero, and));
         assertEquals(rewrittenTerm, zero);
+    }
+
+    @Test
+    public void testRewritteAawd() {
+        Adt intAdt = IntegerAdt.instance().getAdt();
+        OperationSignature fSignature = new OperationSignature("f", false, intAdt.getSort(), intAdt.getSort(), intAdt.getSort());
+        OperationSignature gSignature = new OperationSignature("g", false, intAdt.getSort(), intAdt.getSort());        
+        intAdt.addOperationSignature(fSignature);
+        intAdt.addOperationSignature(gSignature);
+        Variable varX = intAdt.getVariable("x");
+        Variable varY = intAdt.getVariable("y");
+        Axiom axiom = new Axiom(gSignature.instantiates(varY), varY);
+        intAdt.addAxiom(axiom);
+
+        ArrayList<Adt> adts = new ArrayList<Adt>();
+        adts.add(intAdt);
+
+        TermRewritter rewritter = new TermRewritter(adts);
+        Term originalTerm = fSignature.instantiates(gSignature.instantiates(varX), varX);
+                        
+        Term rewrittenTerm = rewritter.rewritte(originalTerm);
+        assertEquals(rewrittenTerm, gSignature.instantiates(varY));
     }
 }

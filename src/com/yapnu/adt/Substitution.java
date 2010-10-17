@@ -10,21 +10,9 @@ package com.yapnu.adt;
  * @author adrien
  */
 public class Substitution {
-    private Term substituted;
+    private Variable substituted;
     private Term value;
-
-    public static Substitution creates(Term substituted, Term value) {
-        if (substituted instanceof Variable) {
-            return new Substitution((Variable) substituted, value);
-        }
-
-        if (!(value instanceof Variable)) {
-            throw new IllegalArgumentException("One of the arguments must be a variable.");
-        }
-
-        return new Substitution(substituted, (Variable) value);
-    }
-
+    
     public Substitution(Variable substituted, Term value) {
         if (substituted == null) {
             throw new IllegalArgumentException("Substituted cannot be null.");
@@ -41,16 +29,12 @@ public class Substitution {
         this.substituted = substituted;
         this.value = value;
     }
-
-    public Substitution(Term substituted, Variable value) {
-        this(value, substituted);
-    }
-
+    
     public Term getValue() {
         return value;
     }
 
-    public Term getSubstituted() {
+    public Variable getSubstituted() {
         return substituted;
     }
 

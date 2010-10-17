@@ -80,13 +80,11 @@ public class Variable implements Term {
             throw new IllegalArgumentException("Substitutions cannnot be null.");
         }
 
-         for (Substitution substitution : substitutions.getSubstitutions()) {
-             if (substitution.getSubstituted().equals(this)) {
-                 return substitution.getValue();
-             }
-         }
-
-         return this;
+        if (substitutions.hasSubstitution(this)) {
+            return substitutions.getValue(this);
+        }
+         
+        return this;
     }
 
     @Override

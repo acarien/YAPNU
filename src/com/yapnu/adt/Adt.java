@@ -82,18 +82,18 @@ public class Adt {
         this.variables.put(term.getName(), term);
     }
 
-    public void addTerm(OperationSignature term) {
-        if (term == null) {
-            throw new IllegalArgumentException("Term cannot be null.");
+    public void addOperationSignature(OperationSignature operationSignature) {
+        if (operationSignature == null) {
+            throw new IllegalArgumentException("Operation Signature cannot be null.");
         }
 
-        if (this.operationTerms.containsKey(term.getName())) {
-            throw new IllegalArgumentException("Term " + term.toString() + " is already defined for the current adt.");
+        if (this.operationTerms.containsKey(operationSignature.getName())) {
+            throw new IllegalArgumentException("Operation Signature " + operationSignature.toString() + " is already defined for the current adt.");
         }
 
-        this.operationTerms.put(term.getName(), term);
-        if (!term.getSort().equals(this.sort)) {
-            this.additionalCodomains.add(term.getSort());
+        this.operationTerms.put(operationSignature.getName(), operationSignature);
+        if (!operationSignature.getSort().equals(this.sort)) {
+            this.additionalCodomains.add(operationSignature.getSort());
         }
     }
 

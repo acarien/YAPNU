@@ -13,8 +13,7 @@ import com.google.common.collect.ImmutableSet;
  */
 public interface Term {
     String getName();
-    Sort getSort();
-    //boolean isGenerator();
+    Sort getSort();    
     int size();
     boolean isNormalForm();    
     Term substitutes(SubstitutionBag substitutions);

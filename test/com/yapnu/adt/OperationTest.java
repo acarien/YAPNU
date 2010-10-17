@@ -7,7 +7,6 @@ package com.yapnu.adt;
 
 import com.yapnu.adt.model.BooleanAdt;
 import com.yapnu.adt.model.IntegerAdt;
-import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -81,7 +80,7 @@ public class OperationTest {
         boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag);
         assertTrue("Can substitute ", canSubstitute1);
         assertTrue("One variable substituted ", bag.size() == 1);
-        assertTrue("Is the right substitution ", bag.getSubstitutions().get(0).equals(new Substitution(adt.getVariable("x"), falseCte)));
+        assertTrue("Is the right substitution ", bag.getValue(adt.getVariable("x")).equals(falseCte));
         bag.clear();
         
         boolean canSubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, trueCte), bag);
@@ -101,7 +100,7 @@ public class OperationTest {
         boolean canSubstitute1 = and.tryGetMatchingSubstitutions(andSignature.instantiates(falseCte, falseCte), bag1);
         assertTrue("Can substitute ", canSubstitute1);
         assertTrue("One variable substituted ", bag1.size() == 1);
-        assertTrue("Is the right substitution ", bag1.getSubstitutions().get(0).equals(new Substitution(adt.getVariable("x"), falseCte)));
+        assertTrue("Is the right substitution ", bag1.getValue(adt.getVariable("x")).equals(falseCte));
 
         SubstitutionBag bag2 = new SubstitutionBag();        
         boolean cansubstitute2 = and.tryGetMatchingSubstitutions(andSignature.instantiates(trueCte, falseCte), bag2);
@@ -127,7 +126,7 @@ public class OperationTest {
                 bag);
         assertTrue("Can substitute ", canSubstitute);
         assertTrue("One variable substituted ", bag.size() == 1);
-        assertTrue("Is the right substitution ", bag.getSubstitutions().get(0).equals(new Substitution(variableX, succSignature.instantiates(zero))));
+        assertTrue("Is the right substitution ", bag.getValue(variableX).equals(succSignature.instantiates(zero)));
     }
 
     @Test
@@ -137,19 +136,17 @@ public class OperationTest {
         OperationSignature gSignature = new OperationSignature("g", false, sort, sort);
         Variable varA = new Variable("A", sort);
         Variable varB = new Variable("B", sort);
-        Constant cte = new Constant("cte", sort);
-
+        
         Term originalTerm = fSignature.instantiates(gSignature.instantiates(varA));
         SubstitutionBag bag = new SubstitutionBag();
         boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(varB), bag);
         assertTrue("Can substitute", canSubstitute);
-        assertTrue(bag.getSubstitutions().size() == 1);
-        assertTrue(bag.getSubstitutions().get(0).getSubstituted().equals(varB));
-        assertTrue(bag.getSubstitutions().get(0).getValue().equals(gSignature.instantiates(varA)));
+        assertTrue(bag.size() == 1);
+        assertTrue(bag.getValue(varB).equals(gSignature.instantiates(varA)));
     }
 
     @Test
-    public void testIsValidSubstitution() {
+    public void testIsValidSubstitutionVariableDependsOnAnotherVariable() {
         Sort sort = new Sort("sort");
         OperationSignature fSignature = new OperationSignature("f", false, sort, sort, sort);
         OperationSignature gSignature = new OperationSignature("g", false, sort, sort);
@@ -161,14 +158,34 @@ public class OperationTest {
         SubstitutionBag bag = new SubstitutionBag();
         boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(varB, cte), bag);
         assertTrue("Can substitute", canSubstitute);
-        assertTrue(bag.getSubstitutions().size() == 2);
-        for (Substitution subs : bag.getSubstitutions()) {
-            System.out.println(subs);
-        }
-        assertTrue(bag.getSubstitutions().get(1).getSubstituted().equals(varA));
-        assertTrue(bag.getSubstitutions().get(1).getValue().equals(cte));
-        assertTrue(bag.getSubstitutions().get(0).getSubstituted().equals(varB));
-        assertTrue(bag.getSubstitutions().get(0).getValue().equals(gSignature.instantiates(cte)));
+        assertTrue(bag.size() == 2);
+        assertTrue(bag.getValue(varA).equals(cte));
+        assertTrue(bag.getValue(varB).equals(gSignature.instantiates(cte)));
+    }
+
+    @Test
+    public void testAwd() {
+        Adt intAdt = IntegerAdt.instance().getAdt();
+        
+        Constant zero = intAdt.getConstant("0");
+        OperationSignature addSignature = intAdt.getOperationSignature("add");
+        OperationSignature succSignature = intAdt.getOperationSignature("succ");
+        Variable x = intAdt.getVariable("x");
+        Variable y = intAdt.getVariable("y");
+        
+        Adt newIntAdt = new Adt(intAdt.getSort());
+        newIntAdt.addTerm(zero);
+        newIntAdt.addOperationSignature(addSignature);
+        newIntAdt.addOperationSignature(succSignature);
+        newIntAdt.addTerm(x);
+        newIntAdt.addTerm(y);
+
+        // inverse les 2 axiomes et test la substitution, reecriture
+        newIntAdt.addAxiom(new Axiom(x, addSignature.instantiates(zero, x)));
+        newIntAdt.addAxiom(new Axiom(x, addSignature.instantiates(x, zero)));
+        newIntAdt.addAxiom(new Axiom(succSignature.instantiates(addSignature.instantiates(x, y)), addSignature.instantiates(succSignature.instantiates(x), y)));
+
+        newIntAdt.getAxiom(succSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero))));
     }
 
     @Test
@@ -187,9 +204,7 @@ public class OperationTest {
         
         Operation addSubstituted1 = add.substitutes(new SubstitutionBag(substitution));
         assertEquals("test syntaxic sugar ", addSubstituted1, addAfterSubstitution);
-
-        ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
-        substitutions.add(substitution);
+        
         Operation addSubstituted2 = add.substitutes(new SubstitutionBag(substitution));
         assertEquals("test general case", addSubstituted2, addAfterSubstitution);
     }

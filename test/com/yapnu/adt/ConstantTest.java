@@ -27,17 +27,19 @@ public class ConstantTest {
         Constant termCloned = new Constant("term", this.sort);
         Constant term2 = new Constant("term2", this.sort);
         Constant term3 = new Constant("term", new Sort("anotherSort"));
+        Constant term4 = new Constant("term", this.sort, false);
 
         assertTrue("same objects", this.term.equals(termCloned));
         assertTrue("symmetry", termCloned.equals(this.term));
         assertFalse("difference on names", this.term.equals(term2));
         assertFalse("difference on sorts", this.term.equals(term3));
+        assertTrue("same event with difference in isGenerator", this.term.equals(term4));
     }
 
     @Test
     public void testIsNormalForm() {
         assertTrue(term.isNormalForm());
-        assertFalse(new Constant("awd", sort, false).isNormalForm());
+        assertFalse(new Constant("anotherConstant", sort, false).isNormalForm());
     }
 
     @Test
