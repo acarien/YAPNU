@@ -6,6 +6,8 @@
 package com.yapnu.adt;
 
 import com.yapnu.adt.model.IntegerAdt;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -25,6 +27,7 @@ public class TermUnifierTest {
     private OperationSignature succSignature;
     private Variable x;
     private Variable y;
+    private Variable z;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -43,6 +46,7 @@ public class TermUnifierTest {
         succSignature = intAdt.getOperationSignature("succ");
         x = new Variable("x", intAdt.getSort());
         y = new Variable("y", intAdt.getSort());
+        z = new Variable("z", intAdt.getSort());
 
         unifer = new TermUnifier(intAdt, new TermRewritter(intAdt));
     }
@@ -56,78 +60,148 @@ public class TermUnifierTest {
      */
     @Test
     public void testCanUnifies1() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("input term (cte) exactly matches expected value", unifer.canUnifies(zero, zero, bag));
-        assertTrue(bag.size() == 0);
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue("input term (cte) exactly matches expected value", unifer.canUnify(zero, zero, bags));
+        assertTrue(bags.size() == 0);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
     }
 
     @Test
     public void testCanUnifies2() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("input term (variable) exactly matches expected value", unifer.canUnifies(x, succSignature.instantiates(zero), bag));        
-        assertTrue(bag.getValue(x).equals(succSignature.instantiates(zero)));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue("input term (variable) exactly matches expected value", unifer.canUnify(x, succSignature.instantiates(zero), bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(succSignature.instantiates(zero)));
     }
 
     @Test
-    public void testCanUnifies3() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("input term (variable) exactly matches expected value", unifer.canUnifies(x, succSignature.instantiates(succSignature.instantiates(zero)), bag));
-        assertTrue(bag.getValue(x).equals(succSignature.instantiates(succSignature.instantiates(zero))));
+    public void testCanUnifies3() {        
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue("input term (variable) exactly matches expected value", unifer.canUnify(x, succSignature.instantiates(succSignature.instantiates(zero)), bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(succSignature.instantiates(succSignature.instantiates(zero))));
     }
 
     @Test
     public void testCanUnifies4() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("input term (operation) exactly matches expected value", unifer.canUnifies(addSignature.instantiates(zero, succSignature.instantiates(zero)), succSignature.instantiates(zero), bag));
-        assertTrue(bag.size() == 0);
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue("input term (operation) exactly matches expected value", unifer.canUnify(addSignature.instantiates(zero, succSignature.instantiates(zero)), succSignature.instantiates(zero), bags));
+        assertTrue(bags.size() == 0);
     }
 
     @Test
     public void testCanUnifies5() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("input term (operation) exactly matches expected value", unifer.canUnifies(addSignature.instantiates(succSignature.instantiates(zero), zero), succSignature.instantiates(zero), bag));
-        assertTrue(bag.size() == 0);
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue("input term (operation) exactly matches expected value", unifer.canUnify(addSignature.instantiates(succSignature.instantiates(zero), zero), succSignature.instantiates(zero), bags));
+        assertTrue(bags.size() == 0);
     }
 
     @Test
     public void testCanUnifies6() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("input term matches expecting value through a substitution", unifer.canUnifies(addSignature.instantiates(x, zero), zero, bag));
-        assertTrue(bag.getValue(x).equals(zero));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue("input term matches expecting value through a substitution", unifer.canUnify(addSignature.instantiates(x, zero), zero, bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(zero));
     }
 
     @Test
     public void testCanUnifies7() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("input term matches expecting value through a substitution", unifer.canUnifies(addSignature.instantiates(zero, x), zero, bag));
-        assertTrue(bag.getValue(x).equals(zero));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue("input term matches expecting value through a substitution", unifer.canUnify(addSignature.instantiates(zero, x), zero, bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(zero));
     }
 
     @Test
     public void testCanUnifies8() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue(unifer.canUnifies(addSignature.instantiates(succSignature.instantiates(zero), y), succSignature.instantiates(zero), bag));
-        assertTrue(bag.getValue(y).equals(zero));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifer.canUnify(addSignature.instantiates(succSignature.instantiates(zero), y), succSignature.instantiates(zero), bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(y).equals(zero));
     }
 
     @Test
     public void testCanUnifies9() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue(unifer.canUnifies(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(zero), bag));
-        assertTrue(bag.getValue(x).equals(zero));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifer.canUnify(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(zero), bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(zero));
     }
 
     @Test
     public void testCanUnifies10() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue(unifer.canUnifies(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(succSignature.instantiates(zero)), bag));
-        assertTrue(bag.getValue(x).equals(succSignature.instantiates(zero)));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifer.canUnify(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(succSignature.instantiates(zero)), bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(succSignature.instantiates(zero)));
     }
 
     @Test
     public void testCanUnifies11() {
-        SubstitutionBag bag = new SubstitutionBag();
-        assertTrue(unifer.canUnifies(addSignature.instantiates(succSignature.instantiates(x), succSignature.instantiates(succSignature.instantiates(zero))), succSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero))), bag));
-        assertTrue(bag.getValue(x).equals(zero));
-    }    
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifer.canUnify(addSignature.instantiates(succSignature.instantiates(x), succSignature.instantiates(succSignature.instantiates(zero))), succSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero))), bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(zero));
+    }
+
+    @Test
+    public void testCanUnifies12() {
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifer.canUnify(addSignature.instantiates(x, y), zero, bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(zero));
+        assertTrue(tmp[0].getValue(y).equals(zero));
+    }
+
+    @Test
+    public void testCanUnifies13() {
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifer.canUnify(addSignature.instantiates(x, y), succSignature.instantiates(zero), bags));
+        assertTrue(bags.size() == 2);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(zero));
+        assertTrue(tmp[0].getValue(y).equals(succSignature.instantiates(zero)));
+
+        assertTrue(tmp[1].getValue(x).equals(succSignature.instantiates(zero)));
+        assertTrue(tmp[1].getValue(y).equals(zero));
+    }
+
+    @Test
+    public void testCanUnifies14() {
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifer.canUnify(addSignature.instantiates(x, addSignature.instantiates(y, z)), succSignature.instantiates(zero), bags));
+        assertTrue(bags.size() == 3);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(x).equals(zero));
+        assertTrue(tmp[0].getValue(y).equals(succSignature.instantiates(zero)));
+        assertTrue(tmp[0].getValue(z).equals(zero));
+
+        assertTrue(tmp[1].getValue(x).equals(succSignature.instantiates(zero)));
+        assertTrue(tmp[1].getValue(y).equals(zero));
+        assertTrue(tmp[1].getValue(z).equals(zero));
+
+        assertTrue(tmp[2].getValue(z).equals(succSignature.instantiates(zero)));
+        assertTrue(tmp[2].getValue(x).equals(zero));
+        assertTrue(tmp[2].getValue(y).equals(zero));
+    }
 }

@@ -5,6 +5,8 @@
 
 package com.yapnu.petriNet;
 
+import java.util.HashSet;
+
 /**
  *
  * @author adrien
@@ -15,8 +17,6 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
-     
     }
 
 

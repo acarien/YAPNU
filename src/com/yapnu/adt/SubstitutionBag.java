@@ -91,6 +91,23 @@ public class SubstitutionBag {
         return this.substitutions.get(substituted);
     }
 
+    public void retainsAll(Set<Variable> variablesToKeep) {
+        this.needToComputeSubstitutions();
+
+        this.substitutions.keySet().retainAll(variablesToKeep);
+        /*LinkedList<Variable> toBeRemoved = new LinkedList<Variable>();
+        this.substitutions.keySet().retainAll(toBeRemoved);
+        for (Variable variable : this.substitutions.keySet()) {
+            if (!variablesToKeep.contains(variable)) {
+                toBeRemoved.addLast(variable);
+            }
+        }
+
+        for (Variable variable : toBeRemoved) {
+            this.substitutions.remove(variable);
+        }*/
+    }
+
     /*public ImmutableList<Substitution> getSubstitutions() {
         this.needToComputeSubstitutions();
         LinkedList<Substitution> list = new LinkedList<Substitution>();
@@ -159,5 +176,25 @@ public class SubstitutionBag {
         return builder.toString();
     }
 
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SubstitutionBag other = (SubstitutionBag) obj;
+        if (this.substitutions != other.substitutions && (this.substitutions == null || !this.substitutions.equals(other.substitutions))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + (this.substitutions != null ? this.substitutions.hashCode() : 0);
+        return hash;
+    }
 }

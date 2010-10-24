@@ -64,10 +64,6 @@ public class Variable implements Term {
             return false;
         }
 
-        /*if (this.equals(other)) {
-            return false;
-        }*/
-
         if (!this.getSort().equals(other.getSort())) {
             return false;
         }

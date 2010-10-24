@@ -36,7 +36,6 @@ public class Axiom {
 
         this.variablesMustHaveSameSortInBothSide();
         this.validatesOccursCheck();
-        //this.sanitizesVariables();
     }
 
     public Term getLeftTerm() {
@@ -100,24 +99,6 @@ public class Axiom {
                 throw new IllegalArgumentException("OccursCheck error.");
             }
         }
-    }
-
-    private void sanitizesVariables() {
-        SubstitutionBag substitutions = new SubstitutionBag();
-        ImmutableSet<Variable> leftVariables = this.leftTerm.getVariables();
-        for (Variable variable : leftVariables) {
-            substitutions.tryAddSubstitution(variable, new Variable(VARIABLE_PREFIX + variable.getName(), variable.getSort()));
-        }
-
-        ImmutableSet<Variable> rightVariables = this.rightTerm.getVariables();
-        for (Variable variable : rightVariables) {
-            if (!substitutions.hasSubstitution(variable)) {
-                substitutions.tryAddSubstitution(variable, new Variable(VARIABLE_PREFIX + variable.getName(), variable.getSort()));
-            }
-        }
-
-        this.leftTerm = this.leftTerm.substitutes(substitutions);
-        this.rightTerm = this.rightTerm.substitutes(substitutions);
     }
 
     @Override

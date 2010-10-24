@@ -58,44 +58,7 @@ public class TermRewritter {
     public Term rewritte(Term term) {
        return this.rewritte(term, null);
     }
-/*
-    Term rewritte(Term term, Term previousTerm) {
-        Term currentTerm = term;
 
-        if (term == null) {
-            throw new IllegalArgumentException("Cannot rewrite a null term.");
-        }
-
-        while (!currentTerm.isNormalForm()) {
-            if (!this.adts.containsKey(currentTerm.getSort())) {
-                throw new IllegalArgumentException("Cannot rewrite a term of the sort " + currentTerm.getSort().toString() + ".");
-            }
-
-            Axiom axiom = this.getAxiom(currentTerm);
-            if (axiom != null) {
-                previousTerm = currentTerm;
-                currentTerm = axiom.getRightTerm();
-                continue;
-            }
-
-            if (currentTerm.equals(previousTerm) || currentTerm instanceof Variable) {                 
-                throw new IllegalArgumentException("Cannot rewrite the term " + previousTerm + ".");
-            }  
-
-            Operation instantiatedTerm = (Operation) currentTerm;
-
-            Term[] newParameters = new Term[instantiatedTerm.getParameters().length];
-            for (int i = 0; i < newParameters.length; i++) {
-                newParameters[i] = this.rewritte(instantiatedTerm.getParamter(i), instantiatedTerm);
-            }
-
-            previousTerm = currentTerm;
-            currentTerm = new Operation(instantiatedTerm.getOperationSignature(), newParameters);
-        }
-
-        return currentTerm;
-    }
-*/
      Term rewritte(Term term, Term previousTerm) {
         if (term == null) {
             throw new IllegalArgumentException("Cannot rewrite a null term.");
