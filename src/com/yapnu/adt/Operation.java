@@ -72,8 +72,7 @@ public class Operation implements Term {
         }
         
         if (other instanceof Variable) {
-            other.tryGetMatchingSubstitutions(this, substitutions);
-            return true;
+            return other.tryGetMatchingSubstitutions(this, substitutions);
         }
         
         if (!(other instanceof Operation)) {
@@ -108,6 +107,16 @@ public class Operation implements Term {
         return new Operation(this.signature, newParameters);
     } 
 
+   @Override
+    public Term rewritte(TermRewritter termRewritter) {
+        Term[] newParameters = new Term[this.parameters.length];
+        for (int i = 0; i < newParameters.length; i++) {
+            newParameters[i] = termRewritter.rewritte(this.parameters[i], null);
+        }
+
+        return this.signature.instantiates(newParameters);
+    }
+   
    @Override
     public boolean isNormalForm() {
        if (!this.isGenerator()) {
@@ -185,5 +194,15 @@ public class Operation implements Term {
                 conflicts.put(variable.getName(), variable);
             }
         }
+    } 
+
+    @Override
+    public Term renameVariables(SubstitutionBag substitutions) {        
+        Term[] newParameters = new Term[this.parameters.length];
+        for (int i = 0; i < newParameters.length; i++) {
+            newParameters[i] = this.parameters[i].renameVariables(substitutions);
+        }
+
+        return this.signature.instantiates(newParameters);
     }
 }

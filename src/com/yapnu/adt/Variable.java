@@ -6,6 +6,7 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.UUID;
 
 /**
  *
@@ -63,15 +64,16 @@ public class Variable implements Term {
             return false;
         }
 
-        if (this.equals(other)) {
+        /*if (this.equals(other)) {
             return false;
-        }
+        }*/
 
         if (!this.getSort().equals(other.getSort())) {
             return false;
         }
                
-        return substitutions.tryAddSubstitution(this, other);        
+        boolean result = substitutions.tryAddSubstitution(this, other);
+        return result;
     }
 
     @Override
@@ -87,6 +89,11 @@ public class Variable implements Term {
         return this;
     }
 
+    @Override
+    public Term rewritte(TermRewritter termRewritter) {
+        return this;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -128,5 +135,23 @@ public class Variable implements Term {
     @Override
     public String toString() {
         return this.getName();
+    }
+
+    @Override
+    public Term renameVariables(SubstitutionBag substitutions) {
+        if (substitutions == null) {
+            throw new IllegalArgumentException("Substitutions is null.");
+        }
+
+        if (substitutions.hasSubstitution(this)) {
+            return substitutions.getValue(this);
+        }
+
+        Variable clone = new Variable(UUID.randomUUID().toString(), this.sort);
+        if (!substitutions.tryAddSubstitution(this, clone)) {
+            throw new IllegalArgumentException("groupmf!");
+        }
+
+        return clone;
     }
 }

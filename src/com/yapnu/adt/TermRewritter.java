@@ -54,12 +54,12 @@ public class TermRewritter {
             this.adts.get(sort).addLast(adt);
         }
     }
-    
+        
     public Term rewritte(Term term) {
        return this.rewritte(term, null);
     }
-
-    private Term rewritte(Term term, Term previousTerm) {
+/*
+    Term rewritte(Term term, Term previousTerm) {
         Term currentTerm = term;
 
         if (term == null) {
@@ -67,26 +67,16 @@ public class TermRewritter {
         }
 
         while (!currentTerm.isNormalForm()) {
-
             if (!this.adts.containsKey(currentTerm.getSort())) {
                 throw new IllegalArgumentException("Cannot rewrite a term of the sort " + currentTerm.getSort().toString() + ".");
             }
 
-            LinkedList<Adt> foundAdts = this.adts.get(currentTerm.getSort());
-            boolean hasFound = false;
-            for (Iterator<Adt> iterator = foundAdts.descendingIterator(); !hasFound && iterator.hasNext();) {
-                Adt adt = iterator.next();
-                Axiom axiom = adt.getAxiom(currentTerm);
-                if (axiom != null) {                    
-                    previousTerm = currentTerm;
-                    currentTerm = axiom.getRightTerm();
-                    hasFound = true;
-                }
-            }
-
-            if (hasFound) {
+            Axiom axiom = this.getAxiom(currentTerm);
+            if (axiom != null) {
+                previousTerm = currentTerm;
+                currentTerm = axiom.getRightTerm();
                 continue;
-            }           
+            }
 
             if (currentTerm.equals(previousTerm) || currentTerm instanceof Variable) {                 
                 throw new IllegalArgumentException("Cannot rewrite the term " + previousTerm + ".");
@@ -104,5 +94,48 @@ public class TermRewritter {
         }
 
         return currentTerm;
+    }
+*/
+     Term rewritte(Term term, Term previousTerm) {
+        if (term == null) {
+            throw new IllegalArgumentException("Cannot rewrite a null term.");
+        }
+
+        Term currentTerm = term;        
+        while (!currentTerm.isNormalForm()) {
+            if (currentTerm.equals(previousTerm)) {
+                return currentTerm;
+            }
+
+            if (!this.adts.containsKey(currentTerm.getSort())) {
+                throw new IllegalArgumentException("Cannot rewrite a term of the sort " + currentTerm.getSort().toString() + ".");
+            }
+
+            Axiom axiom = this.getAxiom(currentTerm);
+            if (axiom != null) {
+                previousTerm = currentTerm;
+                currentTerm = axiom.getRightTerm();
+                continue;
+            }
+
+            Term currentTermCopied = currentTerm;
+            currentTerm = currentTerm.rewritte(this);
+            previousTerm = currentTermCopied;
+        }
+
+        return currentTerm;
+    }
+
+    Axiom getAxiom(Term term) {
+        LinkedList<Adt> foundAdts = this.adts.get(term.getSort());
+        for (Iterator<Adt> iterator = foundAdts.descendingIterator(); iterator.hasNext();) {
+            Adt adt = iterator.next();
+            Axiom axiom = adt.getAxiom(term);
+            if (axiom != null) {
+                return axiom;
+            }
+        }
+
+        return null;
     }
 }

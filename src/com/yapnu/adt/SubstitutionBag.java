@@ -67,6 +67,21 @@ public class SubstitutionBag {
         }
     }
 
+    public boolean tryAddSubstitutions(SubstitutionBag bag) {
+        if (bag == null) {
+            throw new IllegalArgumentException("Bag cannot be null.");
+        }
+
+        bag.needToComputeSubstitutions();
+        for (Variable variable : bag.substitutions.keySet()) {
+            if (!this.tryAddSubstitution(variable, bag.getValue(variable))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public boolean hasSubstitution(Variable substituted) {
         return this.substitutions.containsKey(substituted);
     }
@@ -76,6 +91,17 @@ public class SubstitutionBag {
         return this.substitutions.get(substituted);
     }
 
+    /*public ImmutableList<Substitution> getSubstitutions() {
+        this.needToComputeSubstitutions();
+        LinkedList<Substitution> list = new LinkedList<Substitution>();
+        for (Entry<Variable, Term> entry : this.substitutions.entrySet()) {
+            list.addFirst(new Substitution(entry.getKey(), entry.getValue()));
+        }
+
+        return ImmutableList.copyOf(list);
+    }*/
+
+    
     private void needToComputeSubstitutions() {
         if (this.hasBeenModified && this.substitutions.size() > 1 && !this.isRecomputing) {
             this.isRecomputing = true;
@@ -126,6 +152,7 @@ public class SubstitutionBag {
             builder.append("<");
             builder.append(substitution.getKey());
             builder.append(", ");
+            builder.append(substitution.getValue());
             builder.append(">");
         }
 

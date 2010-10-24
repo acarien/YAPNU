@@ -70,7 +70,7 @@ public class Constant implements Term {
         }
 
         if (other instanceof Variable) {
-            other.tryGetMatchingSubstitutions(this, substitutions);
+            return other.tryGetMatchingSubstitutions(this, substitutions);
         }
         
         return this.equals(other);
@@ -84,6 +84,11 @@ public class Constant implements Term {
     @Override
     public ImmutableSet<Variable> getVariables() {
         return ImmutableSet.of();
+    }
+
+    @Override
+    public Term rewritte(TermRewritter termRewritter) {
+        return this;
     }
 
     @Override
@@ -121,5 +126,10 @@ public class Constant implements Term {
         hash = 89 * hash + (this.name != null ? this.name.hashCode() : 0);
         hash = 89 * hash + (this.sort != null ? this.sort.hashCode() : 0);
         return hash;
+    }
+
+    @Override
+    public Term renameVariables(SubstitutionBag substitutions) {
+        return this;
     }
 }

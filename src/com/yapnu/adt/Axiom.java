@@ -14,6 +14,7 @@ import java.util.HashMap;
  */
 public class Axiom {
 
+    public static final String VARIABLE_PREFIX = "__in_axiom_";
     private Term leftTerm;
     private Term rightTerm;
 
@@ -28,13 +29,14 @@ public class Axiom {
 
         this.leftTerm = leftTerm;
         this.rightTerm = rightTerm;
-
+        
         if (this.leftTerm.equals(this.rightTerm)) {
             throw new IllegalArgumentException("Both sides cannot be equals.");
         }
 
         this.variablesMustHaveSameSortInBothSide();
         this.validatesOccursCheck();
+        //this.sanitizesVariables();
     }
 
     public Term getLeftTerm() {
@@ -88,7 +90,6 @@ public class Axiom {
                 }
             }
         }
-
         
     }
 
@@ -101,29 +102,23 @@ public class Axiom {
         }
     }
 
-    /*private void SetMembersByShortlexOrder(Term leftTerm, Term rightTerm) {
-        int leftSize = leftTerm.size();
-        int rightSize = rightTerm.size();
-        if (leftSize > rightSize) {
-            this.leftTerm = leftTerm;
-            this.rightTerm = rightTerm;
+    private void sanitizesVariables() {
+        SubstitutionBag substitutions = new SubstitutionBag();
+        ImmutableSet<Variable> leftVariables = this.leftTerm.getVariables();
+        for (Variable variable : leftVariables) {
+            substitutions.tryAddSubstitution(variable, new Variable(VARIABLE_PREFIX + variable.getName(), variable.getSort()));
         }
-        else if (leftSize == rightSize) {
-            int nameComparison = leftTerm.getName().compareTo(rightTerm.getName());
-            if (nameComparison >= 0) {
-                this.leftTerm = leftTerm;
-                this.rightTerm = rightTerm;
-            }
-            else {
-                this.leftTerm = rightTerm;
-                this.rightTerm = leftTerm;
+
+        ImmutableSet<Variable> rightVariables = this.rightTerm.getVariables();
+        for (Variable variable : rightVariables) {
+            if (!substitutions.hasSubstitution(variable)) {
+                substitutions.tryAddSubstitution(variable, new Variable(VARIABLE_PREFIX + variable.getName(), variable.getSort()));
             }
         }
-        else {
-            this.leftTerm = rightTerm;
-                this.rightTerm = leftTerm;                                                
-        }
-    }*/
+
+        this.leftTerm = this.leftTerm.substitutes(substitutions);
+        this.rightTerm = this.rightTerm.substitutes(substitutions);
+    }
 
     @Override
     public String toString() {

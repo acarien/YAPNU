@@ -41,8 +41,8 @@ public class TermRewritterTest {
         Adt boolAdt = BooleanAdt.instance().getAdt();
         TermRewritter rewritter1 = new TermRewritter(boolAdt);
 
-        /*Term finalTerm = boolAdt.getOperationSignature("not").instantiates(boolAdt.getConstant("false"));
-        assertEquals("rewritte an already defined axiom", rewritter1.rewritte(finalTerm), boolAdt.getConstant("true"));*/
+        Term finalTerm = boolAdt.getOperationSignature("not").instantiates(boolAdt.getConstant("false"));
+        assertEquals("rewritte an already defined axiom", rewritter1.rewritte(finalTerm), boolAdt.getConstant("true"));
 
 
         Adt intAdt = IntegerAdt.instance().getAdt();
@@ -95,18 +95,15 @@ public class TermRewritterTest {
         assertEquals(rewrittenTerm1, falseTerm);
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testRewritteVariableNotContainedInAxiom() {
         Adt adt = new Adt(new Sort("bool"));
         TermRewritter rewritter = new TermRewritter(adt);
-
-        Constant falseTerm = new Constant("false", adt.getSort());        
-        adt.addTerm(falseTerm);        
-        
+               
         Variable variableX = new Variable("x", adt.getSort());                      
                 
         Term rewrittenTerm1 = rewritter.rewritte(variableX);
-        assertEquals(rewrittenTerm1, falseTerm);
+        assertEquals(rewrittenTerm1, variableX);        
     }
     
     @Test
@@ -217,6 +214,6 @@ public class TermRewritterTest {
         Term originalTerm = fSignature.instantiates(gSignature.instantiates(varX), varX);
                         
         Term rewrittenTerm = rewritter.rewritte(originalTerm);
-        assertEquals(rewrittenTerm, gSignature.instantiates(varY));
+        assertEquals(rewrittenTerm, fSignature.instantiates(varX, varX));
     }
 }

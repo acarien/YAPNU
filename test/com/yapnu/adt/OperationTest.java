@@ -38,14 +38,14 @@ public class OperationTest {
         Operation and = andSignature.instantiates(falseCte, falseCte);
 
         SubstitutionBag bag = new SubstitutionBag();
-        assertFalse(and.tryGetMatchingSubstitutions(orSignature.instantiates(falseCte, falseCte), bag));
-        assertTrue(bag.size() == 0);
+        assertFalse("two different operations cannot be substituted", and.tryGetMatchingSubstitutions(orSignature.instantiates(falseCte, falseCte), bag));
+        assertTrue("two different operations cannot be substituted", bag.size() == 0);
 
-        assertFalse(and.tryGetMatchingSubstitutions(falseCte, bag));
-        assertTrue(bag.size() == 0);
+        assertFalse("an operation cannot be substituted with a constant", and.tryGetMatchingSubstitutions(falseCte, bag));
+        assertTrue("an operation cannot be substituted with a constant", bag.size() == 0);
 
-        assertTrue(and.tryGetMatchingSubstitutions(new Variable("x", adt.getSort()), bag));
-        assertTrue(bag.size() == 1);
+        assertTrue("an operation can be substituted with a variable", and.tryGetMatchingSubstitutions(new Variable("x", adt.getSort()), bag));
+        assertTrue("an operation can be substituted with a variable", bag.size() == 1);
     }
 
     @Test
@@ -137,12 +137,12 @@ public class OperationTest {
         Variable varA = new Variable("A", sort);
         Variable varB = new Variable("B", sort);
         
-        Term originalTerm = fSignature.instantiates(gSignature.instantiates(varA));
+        Term originalTerm = fSignature.instantiates(varB);
         SubstitutionBag bag = new SubstitutionBag();
-        boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(varB), bag);
-        assertTrue("Can substitute", canSubstitute);
-        assertTrue(bag.size() == 1);
-        assertTrue(bag.getValue(varB).equals(gSignature.instantiates(varA)));
+        boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(gSignature.instantiates(varA)), bag);
+        assertTrue("A variable can be substitued with an operation", canSubstitute);
+        assertTrue("A variable can be substitued with an operation", bag.size() == 1);
+        assertTrue("A variable can be substitued with an operation", bag.getValue(varB).equals(gSignature.instantiates(varA)));
     }
 
     @Test
@@ -154,39 +154,14 @@ public class OperationTest {
         Variable varB = new Variable("B", sort);
         Constant cte = new Constant("cte", sort);
 
-        Term originalTerm = fSignature.instantiates(gSignature.instantiates(varA), varA);
+        Term originalTerm = fSignature.instantiates(varB, cte);
         SubstitutionBag bag = new SubstitutionBag();
-        boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(varB, cte), bag);
-        assertTrue("Can substitute", canSubstitute);
-        assertTrue(bag.size() == 2);
-        assertTrue(bag.getValue(varA).equals(cte));
-        assertTrue(bag.getValue(varB).equals(gSignature.instantiates(cte)));
-    }
-
-    @Test
-    public void testAwd() {
-        Adt intAdt = IntegerAdt.instance().getAdt();
-        
-        Constant zero = intAdt.getConstant("0");
-        OperationSignature addSignature = intAdt.getOperationSignature("add");
-        OperationSignature succSignature = intAdt.getOperationSignature("succ");
-        Variable x = intAdt.getVariable("x");
-        Variable y = intAdt.getVariable("y");
-        
-        Adt newIntAdt = new Adt(intAdt.getSort());
-        newIntAdt.addTerm(zero);
-        newIntAdt.addOperationSignature(addSignature);
-        newIntAdt.addOperationSignature(succSignature);
-        newIntAdt.addTerm(x);
-        newIntAdt.addTerm(y);
-
-        // inverse les 2 axiomes et test la substitution, reecriture
-        newIntAdt.addAxiom(new Axiom(x, addSignature.instantiates(zero, x)));
-        newIntAdt.addAxiom(new Axiom(x, addSignature.instantiates(x, zero)));
-        newIntAdt.addAxiom(new Axiom(succSignature.instantiates(addSignature.instantiates(x, y)), addSignature.instantiates(succSignature.instantiates(x), y)));
-
-        newIntAdt.getAxiom(succSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero))));
-    }
+        boolean canSubstitute = originalTerm.tryGetMatchingSubstitutions(fSignature.instantiates(gSignature.instantiates(varA), varA), bag);
+        assertTrue("A variable can be subsituted with an operation or a constant", canSubstitute);
+        assertTrue("A variable can be subsituted with an operation or a constant", bag.size() == 2);
+        assertTrue("A dependency exists betewen the substitutions", bag.getValue(varA).equals(cte));
+        assertTrue("A dependency exists betewen the substitutions", bag.getValue(varB).equals(gSignature.instantiates(cte)));
+    } 
 
     @Test
     public void testInstantiationWithSubstitutionOneVariableInSeveralTerms(){

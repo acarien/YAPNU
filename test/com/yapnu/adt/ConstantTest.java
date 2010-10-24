@@ -50,9 +50,12 @@ public class ConstantTest {
     @Test
     public void testIsValidSubstitution() {
         SubstitutionBag bag = new SubstitutionBag();
-        assertTrue("'substitued' with the same term", this.term.tryGetMatchingSubstitutions(new Constant("term", sort), bag));
-        assertFalse("'substitued' with another term", this.term.tryGetMatchingSubstitutions(new Constant("anotherTerm", sort), bag));
-        assertFalse("'substitued' with nullterm", this.term.tryGetMatchingSubstitutions(null, bag));
+        assertTrue("a constant can be substittued by himeself", this.term.tryGetMatchingSubstitutions(new Constant("term", sort), bag));
+        assertTrue("a constant can be substittued by himeself - it does not create a substitution", bag.size() == 0);
+        bag.clear();
+        assertFalse("a constant cannot be substitued with another term", this.term.tryGetMatchingSubstitutions(new Constant("anotherTerm", sort), bag));
+        assertFalse("a constant cannot be substitued with a nullterm", this.term.tryGetMatchingSubstitutions(null, bag));
+        assertTrue("a constant can be substitued with a variable", this.term.tryGetMatchingSubstitutions(new Variable("x", sort), bag));
     }
 
     @Test

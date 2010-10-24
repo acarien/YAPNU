@@ -5,6 +5,7 @@
 
 package com.yapnu.adt;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -47,6 +48,10 @@ public class Adt {
     }
 
     public Variable getVariable(String name) {
+        if (name.startsWith(Axiom.VARIABLE_PREFIX)) {
+            throw new IllegalArgumentException("Invalid name");
+        }
+        
         return this.variables.get(name);
     }
 
@@ -69,6 +74,10 @@ public class Adt {
     public void addTerm(Variable term) {
         if (term == null) {
             throw new IllegalArgumentException("Term cannot be null.");
+        }
+
+        if (term.getName().startsWith(Axiom.VARIABLE_PREFIX)) {
+            throw new IllegalArgumentException("Invalid name");
         }
 
         if (!this.sort.equals(term.getSort())) {
@@ -102,25 +111,35 @@ public class Adt {
     }
 
     public Axiom getAxiom(Term leftTerm) {
+        SubstitutionBag substitutions = new SubstitutionBag();
+
         Axiom axiom = this.axioms.get(leftTerm);
         if (axiom != null) {
             return axiom;
         }
-        
-        if (this.axiomPerName.containsKey(leftTerm.getName())) {                                   
-            SubstitutionBag substitutions = new SubstitutionBag();
+
+        if (this.axiomPerName.containsKey(leftTerm.getName())) {
+
             for (Axiom possibleAxiom : this.axiomPerName.get(leftTerm.getName())) {
-                substitutions.clear();                
+                substitutions.clear();
                 boolean canSubstitute = possibleAxiom.getLeftTerm().tryGetMatchingSubstitutions(leftTerm, substitutions);
-                if (canSubstitute) {                    
+                if (canSubstitute) {
                     Term rightTerm = possibleAxiom.getRightTerm().substitutes(substitutions);
                     return new Axiom(leftTerm, rightTerm);
-                }                
+                }
             }
         }
-        
+
         return null;
     }
+
+    public boolean hasAxiomPerName(String name) {
+        return this.axiomPerName.containsKey(name);
+    }
+
+    public LinkedList<Axiom> getAxiomPerName(String name) {
+        return this.axiomPerName.get(name);
+    }          
 
     public void addAxiom(Axiom axiom) {
         if (axiom == null) {
