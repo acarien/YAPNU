@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.yapnu.adt.model;
 
 import com.yapnu.adt.Adt;
@@ -18,7 +17,8 @@ import com.yapnu.adt.Variable;
  * @author adrien
  */
 public class IntegerAdt {
-    private static final Sort sort = new Sort("int");    
+
+    private static final Sort sort = new Sort("int");
     private static IntegerAdt instance;
     private final Adt adt;
 
@@ -28,13 +28,13 @@ public class IntegerAdt {
 
     public static IntegerAdt instance() {
         if (instance == null) {
-             instance = new IntegerAdt();
+            instance = new IntegerAdt();
         }
 
         return instance;
     }
 
-    public Adt getAdt() {      
+    public Adt getAdt() {
         return adt;
     }
 
@@ -69,6 +69,11 @@ public class IntegerAdt {
 
         addAddOperation(adt);
         addEqualsOperation(adt);
+        addLessOperation(adt);
+        addLessOrEqualOperation(adt);
+        addGreaterOperation(adt);
+        addGreaterOrEqualOperation(adt);
+        addSubstractionOperation(adt);
 
         return adt;
     }
@@ -80,11 +85,11 @@ public class IntegerAdt {
         Variable x = adt.getVariable("x");
         Variable y = adt.getVariable("y");
         OperationSignature succSignature = adt.getOperationSignature("succ");
-        Constant zeroTerm = adt.getConstant("0");        
+        Constant zeroTerm = adt.getConstant("0");
 
         adt.addAxiom(new Axiom(add.instantiates(zeroTerm, x), x));
         adt.addAxiom(new Axiom(add.instantiates(x, zeroTerm), x));
-        adt.addAxiom(new Axiom(add.instantiates(succSignature.instantiates(x) ,y), succSignature.instantiates(add.instantiates(x, y))));
+        adt.addAxiom(new Axiom(add.instantiates(succSignature.instantiates(x), y), succSignature.instantiates(add.instantiates(x, y))));
     }
 
     private static void addEqualsOperation(Adt adt) {
@@ -99,10 +104,85 @@ public class IntegerAdt {
         Constant zeroTerm = adt.getConstant("0");
         Constant falseTerm = boolAdt.getConstant("false");
         Constant trueTerm = boolAdt.getConstant("true");
-                
+
         adt.addAxiom(new Axiom(equals.instantiates(zeroTerm, zeroTerm), trueTerm));
         adt.addAxiom(new Axiom(equals.instantiates(zeroTerm, succSignature.instantiates(x)), falseTerm));
         adt.addAxiom(new Axiom(equals.instantiates(succSignature.instantiates(x), zeroTerm), falseTerm));
-        adt.addAxiom(new Axiom(equals.instantiates(succSignature.instantiates(x), succSignature.instantiates(y)),  equals.instantiates(x, y)));
-    }    
+        adt.addAxiom(new Axiom(equals.instantiates(succSignature.instantiates(x), succSignature.instantiates(y)), equals.instantiates(x, y)));
+    }
+
+    private static void addLessOperation(Adt adt) {
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+
+        OperationSignature less = new OperationSignature("<", false, boolAdt.getSort(), sort, sort);
+        adt.addOperationSignature(less);
+
+        Variable x = adt.getVariable("x");
+        Variable y = adt.getVariable("y");
+        OperationSignature succSignature = adt.getOperationSignature("succ");
+        Constant zeroTerm = adt.getConstant("0");
+        Constant falseTerm = boolAdt.getConstant("false");
+        Constant trueTerm = boolAdt.getConstant("true");
+
+        adt.addAxiom(new Axiom(less.instantiates(zeroTerm, zeroTerm), falseTerm));
+        adt.addAxiom(new Axiom(less.instantiates(zeroTerm, succSignature.instantiates(x)), trueTerm));
+        adt.addAxiom(new Axiom(less.instantiates(succSignature.instantiates(x), zeroTerm), falseTerm));
+        adt.addAxiom(new Axiom(less.instantiates(succSignature.instantiates(x), succSignature.instantiates(y)), less.instantiates(x, y)));
+    }
+
+    private static void addLessOrEqualOperation(Adt adt) {
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+
+        OperationSignature lessOrEqual = new OperationSignature("<=", false, boolAdt.getSort(), sort, sort);
+        adt.addOperationSignature(lessOrEqual);
+
+        Variable x = adt.getVariable("x");
+        Variable y = adt.getVariable("y");
+        OperationSignature notSignature = boolAdt.getOperationSignature("not");
+        OperationSignature lessSignature = adt.getOperationSignature("<");
+
+        adt.addAxiom(new Axiom(lessOrEqual.instantiates(x, y), notSignature.instantiates(lessSignature.instantiates(y, x))));
+    }
+
+    private static void addGreaterOperation(Adt adt) {
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+
+        OperationSignature greater = new OperationSignature(">", false, boolAdt.getSort(), sort, sort);
+        adt.addOperationSignature(greater);
+
+        Variable x = adt.getVariable("x");
+        Variable y = adt.getVariable("y");
+        OperationSignature notSignature = boolAdt.getOperationSignature("not");
+        OperationSignature lessOrEqualSignature = adt.getOperationSignature("<=");
+
+        adt.addAxiom(new Axiom(greater.instantiates(x, y), notSignature.instantiates(lessOrEqualSignature.instantiates(x, y))));
+    }
+
+    private static void addGreaterOrEqualOperation(Adt adt) {
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+
+        OperationSignature greaterOrEqual = new OperationSignature(">=", false, boolAdt.getSort(), sort, sort);
+        adt.addOperationSignature(greaterOrEqual);
+
+        Variable x = adt.getVariable("x");
+        Variable y = adt.getVariable("y");
+        OperationSignature notSignature = boolAdt.getOperationSignature("not");
+        OperationSignature lessSignature = adt.getOperationSignature("<");
+
+        adt.addAxiom(new Axiom(greaterOrEqual.instantiates(x, y), notSignature.instantiates(lessSignature.instantiates(x, y))));
+    }
+
+    private static void addSubstractionOperation(Adt adt) {
+        OperationSignature substraction = new OperationSignature("-", false, sort, sort, sort);
+        adt.addOperationSignature(substraction);
+
+        Variable x = adt.getVariable("x");
+        Variable y = adt.getVariable("y");
+        OperationSignature succSignature = adt.getOperationSignature("succ");        
+        Constant zeroTerm = adt.getConstant("0");
+              
+        adt.addAxiom(new Axiom(substraction.instantiates(zeroTerm, x), zeroTerm));
+        adt.addAxiom(new Axiom(substraction.instantiates(succSignature.instantiates(y), zeroTerm), succSignature.instantiates(y)));
+        adt.addAxiom(new Axiom(substraction.instantiates(succSignature.instantiates(y), succSignature.instantiates(x)), substraction.instantiates(y, x)));
+    }
 }

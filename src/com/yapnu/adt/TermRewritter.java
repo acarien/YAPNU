@@ -89,11 +89,11 @@ public class TermRewritter {
         return currentTerm;
     }
 
-    Axiom getAxiom(Term term) {
+    private Axiom getAxiom(Term term) {
         LinkedList<Adt> foundAdts = this.adts.get(term.getSort());
         for (Iterator<Adt> iterator = foundAdts.descendingIterator(); iterator.hasNext();) {
             Adt adt = iterator.next();
-            Axiom axiom = adt.getAxiom(term);
+            Axiom axiom = adt.getAxiom(this, term);
             if (axiom != null) {
                 return axiom;
             }

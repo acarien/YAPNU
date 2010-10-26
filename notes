@@ -1,16 +1,20 @@
 Next steps
 ==========
 
-- on doit toujours retourner un SubstitutionBag, meme si l'operation tryMatch n'a pas reussi
--- SubstitutionBag doit contenir un flag success
--- substitution bag peut être nettoyé
--- on n'a plus besoin de linkedhashed, un hashset seul doit suffir.
-
-- unifcation à l'envers
-- tests avec http://en.wikipedia.org/wiki/Unification_%28computing%29
+- term rewritter: exception quand aucun adt ne correspond au sort d'un term
 
 - ajouter les préconditions aux axiomes
 -- c'est un term de codomain boolean
+
+- adt.getAxiom => termRewritter
+
+- on doit toujours retourner un SubstitutionBag, meme si l'operation tryMatch n'a pas reussi
+-- SubstitutionBag doit contenir un flag success
+
+- on peut faire un set de substitutionset qui contienne une contrainte (sous forme de substitutionSet) qui filtre
+
+- unifcation à l'envers
+- tests avec http://en.wikipedia.org/wiki/Unification_%28computing%29
 
 - réécrire getvariables
 - renommer substitution en unification
@@ -19,12 +23,16 @@ Next steps
 - idem pour variable
 - tester occurscheck dans SubstitutionBag
 
+- verifier tout les usages de getVariables() (=> créer un hasVariable?)
+
 - ajouter les axiomes
 -- and(x, false) = false
 -- or(x, true) = true
 -- est-ce que and(x, false) fait un shortcut (i.e. pas de réécriture) sur l'évalution de x?
 --- je crois que oui
 -- cela implique d'avoir une operation qui fait seuleemnt le equals et non le rewrite pour savoir si x != false
+
+- problème de dépendence de namespace circulaire
 
 Notes
 =====
@@ -47,39 +55,3 @@ Autres
 
 - réseau de petri alégbrique
 - valider le comportement du réseau avec le black token
-
-Idees
------
-
-//expectingValue = s(s(s(0)))
-//term = add(x,y)
-
-/* axioms:
-- add(x, 0) = 0
-- add(s(x),y) = s(add(x,y))
-*/
-
-Adt.solves(Term term, Term expectingValue) {
-SubstitutionBag substitutions = new SubstitutionBag();
-boolean existsMatch = term.TryMatchSubstitution(expectingValue);
-if (existsMatch) {
-}
-else {
-// righTerm <=> s(add(x,y))
-Term rightTerm = this.getAxiom(term).getRightTerm();
-if (rightTerm != null)
-{
-if (rightTerm.tryMatchSubsittution(rightTerm, substitutions)) {
-// we found x & >
-}
-else {
-Adt.solves(rightTerm, expectingValue)
-}
-}
-else {
-exception nothing to do because the term is not a known operation
-}
-}
-}
-
-s

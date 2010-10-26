@@ -5,9 +5,10 @@
 
 package com.yapnu.adt;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  *
@@ -47,11 +48,7 @@ public class Adt {
         return this.constants.get(name);
     }
 
-    public Variable getVariable(String name) {
-        if (name.startsWith(Axiom.VARIABLE_PREFIX)) {
-            throw new IllegalArgumentException("Invalid name");
-        }
-        
+    public Variable getVariable(String name) {       
         return this.variables.get(name);
     }
 
@@ -74,10 +71,6 @@ public class Adt {
     public void addTerm(Variable term) {
         if (term == null) {
             throw new IllegalArgumentException("Term cannot be null.");
-        }
-
-        if (term.getName().startsWith(Axiom.VARIABLE_PREFIX)) {
-            throw new IllegalArgumentException("Invalid name");
         }
 
         if (!this.sort.equals(term.getSort())) {
@@ -106,23 +99,22 @@ public class Adt {
         }
     }
 
-    public boolean hasAxiom(Term leftTerm) {
-        return this.getAxiom(leftTerm) != null;
+    public boolean hasAxiom(TermRewritter termRewritter, Term leftTerm) {
+        return this.getAxiom(termRewritter, leftTerm) != null;
     }
 
-    public Axiom getAxiom(Term leftTerm) {
-        SubstitutionBag substitutions = new SubstitutionBag();
-
+    public Axiom getAxiom(TermRewritter termRewritter, Term leftTerm) {
         Axiom axiom = this.axioms.get(leftTerm);
         if (axiom != null) {
             return axiom;
         }
 
         if (this.axiomPerName.containsKey(leftTerm.getName())) {
+            SubstitutionBag substitutions = new SubstitutionBag();
 
             for (Axiom possibleAxiom : this.axiomPerName.get(leftTerm.getName())) {
-                substitutions.clear();
-                boolean canSubstitute = possibleAxiom.getLeftTerm().tryGetMatchingSubstitutions(leftTerm, substitutions);
+                substitutions.clear();                
+                boolean canSubstitute = possibleAxiom.tryGetMatchingSubstitutions(termRewritter, leftTerm, substitutions);
                 if (canSubstitute) {
                     Term rightTerm = possibleAxiom.getRightTerm().substitutes(substitutions);
                     return new Axiom(leftTerm, rightTerm);
@@ -152,5 +144,41 @@ public class Adt {
 
         this.axiomPerName.get(axiom.getLeftTerm().getName()).addLast(axiom);
         this.axioms.put(axiom.getLeftTerm(), axiom);
+    }
+
+     boolean canUnifyThroughAxioms(TermUnifier termUnifier, Term term, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+        SubstitutionBag renamedVariables = new SubstitutionBag();
+        Term renamedTerm = term.renameVariables(renamedVariables);
+
+        if (!this.axiomPerName.containsKey(term.getName())) {
+            return false;
+        }
+
+        boolean hasUnified = false;
+        HashSet<SubstitutionBag> localSubstitutionSet = new HashSet<SubstitutionBag>();
+        for (Axiom possibleAxiom : this.axiomPerName.get(renamedTerm.getName())) {
+            /*if (canUnifyThroughAxiom(renamedTerm, expectedValue, possibleAxiom, localSubstitutionSet)) {
+                hasUnified = true;
+            }*/
+            if (possibleAxiom.canUnify(termUnifier, renamedTerm, expectedValue, localSubstitutionSet)) {
+                hasUnified = true;
+            }
+        }
+
+        if (!hasUnified) {
+            return false;
+        }
+
+        for (SubstitutionBag substitutions : localSubstitutionSet) {
+            // on ne doit remonter les subs que pour les variables reecrites
+            if (!substitutions.tryAddSubstitutions(renamedVariables)) {
+                return false;
+            }
+
+            substitutions.retainsAll(term.getVariables());
+            substitutionSet.add(substitutions);
+        }
+
+        return true;
     }
 }

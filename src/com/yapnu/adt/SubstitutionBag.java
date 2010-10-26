@@ -6,8 +6,10 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -16,7 +18,7 @@ import java.util.Set;
  * @author adrien
  */
 public class SubstitutionBag {
-    private final LinkedHashMap<Variable, Term> substitutions = new LinkedHashMap<Variable, Term>();
+    private final HashMap<Variable, Term> substitutions = new HashMap<Variable, Term>();
     private boolean hasBeenModified = false;
     private boolean isRecomputing = false;
 
@@ -72,9 +74,19 @@ public class SubstitutionBag {
             throw new IllegalArgumentException("Bag cannot be null.");
         }
 
-        bag.needToComputeSubstitutions();
+        if (this == bag) {
+            return true;
+        }
+
+        /*bag.needToComputeSubstitutions();
         for (Variable variable : bag.substitutions.keySet()) {
             if (!this.tryAddSubstitution(variable, bag.getValue(variable))) {
+                return false;
+            }
+        }*/
+
+        for (Substitution substitution : bag.getSubstitutions()) {
+            if (!this.tryAddSubstitution(substitution)) {
                 return false;
             }
         }
@@ -93,22 +105,10 @@ public class SubstitutionBag {
 
     public void retainsAll(Set<Variable> variablesToKeep) {
         this.needToComputeSubstitutions();
-
         this.substitutions.keySet().retainAll(variablesToKeep);
-        /*LinkedList<Variable> toBeRemoved = new LinkedList<Variable>();
-        this.substitutions.keySet().retainAll(toBeRemoved);
-        for (Variable variable : this.substitutions.keySet()) {
-            if (!variablesToKeep.contains(variable)) {
-                toBeRemoved.addLast(variable);
-            }
-        }
-
-        for (Variable variable : toBeRemoved) {
-            this.substitutions.remove(variable);
-        }*/
     }
 
-    /*public ImmutableList<Substitution> getSubstitutions() {
+    public ImmutableList<Substitution> getSubstitutions() {
         this.needToComputeSubstitutions();
         LinkedList<Substitution> list = new LinkedList<Substitution>();
         for (Entry<Variable, Term> entry : this.substitutions.entrySet()) {
@@ -116,8 +116,7 @@ public class SubstitutionBag {
         }
 
         return ImmutableList.copyOf(list);
-    }*/
-
+    }
     
     private void needToComputeSubstitutions() {
         if (this.hasBeenModified && this.substitutions.size() > 1 && !this.isRecomputing) {
