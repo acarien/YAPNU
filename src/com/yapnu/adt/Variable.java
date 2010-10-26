@@ -6,6 +6,7 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -149,5 +150,9 @@ public class Variable implements Term {
         }
 
         return clone;
+    }
+
+    public boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+        return false;
     }
 }

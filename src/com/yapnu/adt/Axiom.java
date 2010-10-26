@@ -42,6 +42,10 @@ public class Axiom {
             throw new IllegalArgumentException("Both sides cannot be equals.");
         }
 
+        if (!this.leftTerm.getSort().equals(this.rightTerm.getSort())) {
+            throw new IllegalArgumentException("Right term sort must be equals to the left term sort.");
+        }
+
         if (this.precondition != null) {
             if (!this.precondition.getSort().equals(BooleanAdt.instance().getAdt().getSort())) {
                 throw new IllegalArgumentException("Precondition must be of Boolean sort.");
@@ -85,13 +89,17 @@ public class Axiom {
             return false;
         }
 
+        if (axiomConclusionSubstitutionSet.size() == 0) {
+            axiomConclusionSubstitutionSet.add(new SubstitutionBag());
+        }
+
         boolean canAxiomBeUnified = false;
-        for (SubstitutionBag axiomConclustionSubstitutions : axiomConclusionSubstitutionSet) {
+        for (SubstitutionBag axiomConclusionSubstitutions : axiomConclusionSubstitutionSet) {
             // est-ce qu'on peut unifier le membre de gauche de l'axiome avec la substitution faite sur le droit?
-            Term leftTermSubstituted = this.leftTerm.substitutes(axiomConclustionSubstitutions);
+            Term leftTermSubstituted = this.leftTerm.substitutes(axiomConclusionSubstitutions);
             HashSet<SubstitutionBag> leftTermSubstitutionSet = new HashSet<SubstitutionBag>();
-            boolean canSubstituteLeftTermWithConclustionSubstitutions = termUnifier.canUnifyRecursively(term, leftTermSubstituted, leftTermSubstitutionSet);
-            if (!canSubstituteLeftTermWithConclustionSubstitutions) {
+            boolean canSubstituteLeftTermWithConclusionSubstitutions = term.canUnifyRecursively(termUnifier, leftTermSubstituted, leftTermSubstitutionSet);
+            if (!canSubstituteLeftTermWithConclusionSubstitutions) {
                 continue;
             }
 
@@ -100,6 +108,14 @@ public class Axiom {
             }
 
             for (SubstitutionBag leftTermSubstitutions : leftTermSubstitutionSet) {
+                if (this.precondition != null) {
+                    Term substitutedPrecondition = this.precondition.substitutes(leftTermSubstitutions).substitutes(axiomConclusionSubstitutions);
+                    Term rewrittenPrecondition = termUnifier.getRewritter().rewritte(substitutedPrecondition);
+                    if (!rewrittenPrecondition.equals(BooleanAdt.instance().getAdt().getConstant("true"))) {
+                        continue;
+                    }
+                }
+
                 HashSet<SubstitutionBag> tmpSet = new HashSet<SubstitutionBag>();
                 Term rightTermSubstituted = this.rightTerm.substitutes(leftTermSubstitutions);
                 boolean success = termUnifier.canUnify(rightTermSubstituted, expectedValue, tmpSet);

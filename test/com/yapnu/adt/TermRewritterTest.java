@@ -216,9 +216,4 @@ public class TermRewritterTest {
         Term rewrittenTerm = rewritter.rewritte(originalTerm);
         assertEquals(rewrittenTerm, fSignature.instantiates(varX, varX));
     }
-
-    @Test
-    public void testRewritteAxiomWithPreconditions() {
-        
-    }
 }

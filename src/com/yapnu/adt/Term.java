@@ -5,6 +5,7 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 
 /**
  *
@@ -29,6 +30,8 @@ public interface Term {
     Term rewritte(TermRewritter termRewritter);
 
     Term renameVariables(SubstitutionBag bag);
+
+    boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet);    
 
    /* public final Term rewritte(ArrayList<Adt> adts) {
         AdtMap adtMap = new AdtMap(adts);

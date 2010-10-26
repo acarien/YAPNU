@@ -106,6 +106,14 @@ public class AxiomTest {
         new Axiom(precondition, leftTerm, rightTerm);
     }
 
+   @Test(expected=IllegalArgumentException.class)
+   public void testCreateAxiomWithRightTermNotOfTheRightSort() {
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+        Adt intAdt = IntegerAdt.instance().getAdt();
+
+        Axiom axiom = new Axiom(intAdt.getOperationSignature("succ").instantiates(intAdt.getConstant("0")), boolAdt.getConstant("true"));
+   }
+
    @Test
    public void testIsValueObject() {
         Adt boolAdt = BooleanAdt.instance().getAdt();

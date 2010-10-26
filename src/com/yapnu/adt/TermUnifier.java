@@ -5,8 +5,6 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -23,10 +21,14 @@ public class TermUnifier {
         this.rewritter = rewritter;
     }
 
+    TermRewritter getRewritter() {
+        return rewritter;
+    }   
+
     public boolean canUnify(Term term, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
-        if (!expectedValue.isNormalForm()) {
+        /*if (!expectedValue.isNormalForm()) {
             throw new IllegalArgumentException("ExpectingValue must be in normal form.");
-        }
+        }*/
 
         if (term.equals(expectedValue)) {
             return true;
@@ -45,16 +47,13 @@ public class TermUnifier {
             return true;
         }
 
-        // est-ce qu'il y a un axiome qui s'applique
-        /*if (canUnifyThroughAxioms(term, expectedValue, substitutionSet)) {
-            return true;
-        }*/
+        // est-ce qu'il y a un axiome qui s'applique        
         if (adt.canUnifyThroughAxioms(this, term, expectedValue, substitutionSet)) {
             return true;
         }
 
         // recursivement
-        if (canUnifyRecursively(term, expectedValue, substitutionSet)) {
+        if (term.canUnifyRecursively(this, expectedValue, substitutionSet)) {
             return true;
         }
 
@@ -72,7 +71,7 @@ public class TermUnifier {
         return false;
     }
 
-    boolean canUnifyRecursively(Term term, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+    /*boolean canUnifyRecursively(Term term, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
         if (term instanceof Operation && expectedValue instanceof Operation) {
             Operation operation = (Operation) term;
             Operation expectingOperation = (Operation) expectedValue;
@@ -111,9 +110,6 @@ public class TermUnifier {
         boolean hasUnified = false;
         HashSet<SubstitutionBag> localSubstitutionSet = new HashSet<SubstitutionBag>();
         for (Axiom possibleAxiom : this.adt.getAxiomPerName(renamedTerm.getName())) {
-            /*if (canUnifyThroughAxiom(renamedTerm, expectedValue, possibleAxiom, localSubstitutionSet)) {
-                hasUnified = true;
-            }*/
             if (possibleAxiom.canUnify(this, renamedTerm, expectedValue, localSubstitutionSet)) {
                 hasUnified = true;
             }
@@ -212,5 +208,5 @@ public class TermUnifier {
 
             CanDistribute(bags, index + 1, current, result);
         }
-    }
+    }*/
 }

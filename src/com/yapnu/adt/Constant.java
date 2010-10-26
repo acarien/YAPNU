@@ -6,6 +6,7 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 
 /**
  *
@@ -131,5 +132,10 @@ public class Constant implements Term {
     @Override
     public Term renameVariables(SubstitutionBag substitutions) {
         return this;
+    }
+
+    @Override
+    public boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+        return false;
     }
 }

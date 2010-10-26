@@ -6,8 +6,11 @@ package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -204,5 +207,76 @@ public class Operation implements Term {
         }
 
         return this.signature.instantiates(newParameters);
+    }
+
+    public boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+        if (!(expectedValue instanceof Operation)) {
+            return false;
+        }
+
+        Operation expectingOperation = (Operation) expectedValue;
+        if (!this.signature.equals(expectingOperation.getOperationSignature())) {
+            return false;
+        }
+
+        boolean allParametersAreUnified = true;
+        ArrayList<Set<SubstitutionBag>> allSubstitutionSet = new ArrayList<Set<SubstitutionBag>>();
+
+        for (int i = 0; i < this.parameters.length; i++) {
+            Set<SubstitutionBag> localSubstitutionSet = new HashSet<SubstitutionBag>();
+            if (!termUnifier.canUnify(this.parameters[i], expectingOperation.getParamter(i), localSubstitutionSet)) {
+                allParametersAreUnified = false;
+                break;
+            }
+
+            allSubstitutionSet.add(localSubstitutionSet);
+        }
+
+        if (allParametersAreUnified) {
+            substitutionSet.addAll(Distribute(allSubstitutionSet));
+            return true;
+        }
+        
+        return false;
+    }
+
+    private static Set<SubstitutionBag> Distribute(ArrayList<Set<SubstitutionBag>> bags) {
+        for (Set<SubstitutionBag> bag : bags) {
+            if (bag.size() == 0) {
+                bag.add(new SubstitutionBag());
+            }
+        }
+
+        Set<SubstitutionBag> result = new HashSet<SubstitutionBag>();
+        if (bags.size() >= 0) {
+            for (SubstitutionBag bag : bags.get(0)) {
+                CanDistribute(bags, 1, bag, result);
+            }
+        }
+
+        return result;
+    }
+
+    private static void CanDistribute(ArrayList<Set<SubstitutionBag>> bags, int index, SubstitutionBag current, Set<SubstitutionBag> result) {
+        if (index >= bags.size()) {
+            SubstitutionBag res = new SubstitutionBag();
+            res.tryAddSubstitutions(current);
+            result.add(res);
+            return;
+        }
+
+        SubstitutionBag copy = new SubstitutionBag();
+        copy.tryAddSubstitutions(current);
+
+        for (SubstitutionBag bag : bags.get(index)) {
+            current.clear();
+            current.tryAddSubstitutions(copy);
+
+            if (!current.tryAddSubstitutions(bag)) {
+                return;
+            }
+
+            CanDistribute(bags, index + 1, current, result);
+        }
     }
 }
