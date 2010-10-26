@@ -192,16 +192,16 @@ public class TermUnifierTest {
         assertTrue(bags.size() == 3);
         SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
         bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(zero));
         assertTrue(tmp[0].getValue(y).equals(succSignature.instantiates(zero)));
+        assertTrue(tmp[0].getValue(x).equals(zero));        
         assertTrue(tmp[0].getValue(z).equals(zero));
 
-        assertTrue(tmp[1].getValue(x).equals(succSignature.instantiates(zero)));
+        assertTrue(tmp[1].getValue(z).equals(succSignature.instantiates(zero)));
+        assertTrue(tmp[1].getValue(x).equals(zero));
         assertTrue(tmp[1].getValue(y).equals(zero));
-        assertTrue(tmp[1].getValue(z).equals(zero));
 
-        assertTrue(tmp[2].getValue(z).equals(succSignature.instantiates(zero)));
-        assertTrue(tmp[2].getValue(x).equals(zero));
+        assertTrue(tmp[2].getValue(x).equals(succSignature.instantiates(zero)));
         assertTrue(tmp[2].getValue(y).equals(zero));
+        assertTrue(tmp[2].getValue(z).equals(zero));
     }
 }
