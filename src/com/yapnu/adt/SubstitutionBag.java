@@ -59,8 +59,20 @@ public class SubstitutionBag {
             throw new IllegalArgumentException("Value cannot be null.");
         }        
         
-        if (this.substitutions.containsKey(substituted)) {
-            return this.substitutions.get(substituted).equals(value);
+        if (this.substitutions.containsKey(substituted)) {            
+            Term substitution = this.substitutions.get(substituted);
+            if (!substitution.equals(value)) {
+                if (substitution instanceof Variable) {
+                    return this.tryAddSubstitution((Variable) substitution, value);
+                }
+                else if (value instanceof Variable) {
+                    return this.tryAddSubstitution((Variable) value, substitution);
+                }
+                                    
+                return false;
+            }
+
+            return true;
         }
         else {
             this.substitutions.put(substituted, value);
@@ -78,15 +90,8 @@ public class SubstitutionBag {
             return true;
         }
 
-        /*bag.needToComputeSubstitutions();
-        for (Variable variable : bag.substitutions.keySet()) {
-            if (!this.tryAddSubstitution(variable, bag.getValue(variable))) {
-                return false;
-            }
-        }*/
-
-        for (Substitution substitution : bag.getSubstitutions()) {
-            if (!this.tryAddSubstitution(substitution)) {
+        for (Entry<Variable, Term> substitution : bag.getInternSubstitutions()) {
+            if (!this.tryAddSubstitution(substitution.getKey(), substitution.getValue())) {
                 return false;
             }
         }
@@ -116,6 +121,11 @@ public class SubstitutionBag {
         }
 
         return ImmutableList.copyOf(list);
+    }
+
+    private ImmutableList<Entry<Variable, Term>> getInternSubstitutions() {
+        this.needToComputeSubstitutions();
+        return ImmutableList.copyOf(this.substitutions.entrySet());
     }
     
     private void needToComputeSubstitutions() {
@@ -180,10 +190,15 @@ public class SubstitutionBag {
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         final SubstitutionBag other = (SubstitutionBag) obj;
+        this.needToComputeSubstitutions();
+        other.needToComputeSubstitutions();
+        
         if (this.substitutions != other.substitutions && (this.substitutions == null || !this.substitutions.equals(other.substitutions))) {
             return false;
         }

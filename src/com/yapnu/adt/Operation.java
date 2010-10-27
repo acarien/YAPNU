@@ -233,50 +233,19 @@ public class Operation implements Term {
         }
 
         if (allParametersAreUnified) {
-            substitutionSet.addAll(Distribute(allSubstitutionSet));
+            Set<SubstitutionBag> result = SubstitutionBagCollection.Distribute(allSubstitutionSet);
+            // on doit filiter le resultat par rapport aux variables du terme
+
+            // le test est faux, c'est le nombre de bag non-vide qui compte:
+            // si on avait des substitutions et qu'elles sont incompatibles, alors on la substition n'est pas bonne
+            if (allSubstitutionSet.size() > 0 && result.size() == 0) {
+                return false;
+            }
+            
+            substitutionSet.addAll(result);
             return true;
         }
         
         return false;
-    }
-
-    private static Set<SubstitutionBag> Distribute(ArrayList<Set<SubstitutionBag>> bags) {
-        for (Set<SubstitutionBag> bag : bags) {
-            if (bag.size() == 0) {
-                bag.add(new SubstitutionBag());
-            }
-        }
-
-        Set<SubstitutionBag> result = new HashSet<SubstitutionBag>();
-        if (bags.size() >= 0) {
-            for (SubstitutionBag bag : bags.get(0)) {
-                CanDistribute(bags, 1, bag, result);
-            }
-        }
-
-        return result;
-    }
-
-    private static void CanDistribute(ArrayList<Set<SubstitutionBag>> bags, int index, SubstitutionBag current, Set<SubstitutionBag> result) {
-        if (index >= bags.size()) {
-            SubstitutionBag res = new SubstitutionBag();
-            res.tryAddSubstitutions(current);
-            result.add(res);
-            return;
-        }
-
-        SubstitutionBag copy = new SubstitutionBag();
-        copy.tryAddSubstitutions(current);
-
-        for (SubstitutionBag bag : bags.get(index)) {
-            current.clear();
-            current.tryAddSubstitutions(copy);
-
-            if (!current.tryAddSubstitutions(bag)) {
-                return;
-            }
-
-            CanDistribute(bags, index + 1, current, result);
-        }
-    }
+    }    
 }

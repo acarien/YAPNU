@@ -242,7 +242,7 @@ public class TermUnifierTest {
         OperationSignature equalsSignature = new OperationSignature("=", false, boolAdt.getSort(), sort, sort);
         adt.addOperationSignature(equalsSignature);
 
-        Variable x = new Variable("x", sort);
+        Variable varX = new Variable("x", sort);
         Constant aCte = new Constant("a", sort);
         Constant bCte = new Constant("b", sort);
         adt.addTerm(aCte);
@@ -253,17 +253,79 @@ public class TermUnifierTest {
         adt.addAxiom(new Axiom(equalsSignature.instantiates(bCte, aCte), boolAdt.getConstant("false")));
         adt.addAxiom(new Axiom(equalsSignature.instantiates(bCte, bCte), boolAdt.getConstant("true")));
 
-        adt.addAxiom(new Axiom(equalsSignature.instantiates(x, bCte), nSignature.instantiates(x), x));
+        adt.addAxiom(new Axiom(equalsSignature.instantiates(varX, bCte), nSignature.instantiates(varX), varX));
 
         TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
         Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifier.canUnify(nSignature.instantiates(x), bCte, bags));
+        assertTrue(unifier.canUnify(nSignature.instantiates(varX), bCte, bags));
         assertTrue(bags.size() == 1);
         SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
         bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(bCte));
+        assertTrue(tmp[0].getValue(varX).equals(bCte));
 
         bags.clear();
-        assertFalse(unifier.canUnify(nSignature.instantiates(x), aCte, bags));
+        assertFalse(unifier.canUnify(nSignature.instantiates(varX), aCte, bags));
+    }
+
+    @Test
+    public void testCanUnifyAwd() {
+        Adt boolAdt = BooleanAdt.instance().getAdt();
+        Sort sort = new Sort("sort");
+        Adt adt = new Adt(sort);
+
+        OperationSignature nSignature = new OperationSignature("n", false, sort, sort);
+        adt.addOperationSignature(nSignature);
+
+        OperationSignature equalsSignature = new OperationSignature("=", false, boolAdt.getSort(), sort, sort);
+        adt.addOperationSignature(equalsSignature);
+
+        Variable varX = new Variable("x", sort);
+        Constant aCte = new Constant("a", sort);
+        Constant bCte = new Constant("b", sort);
+        adt.addTerm(aCte);
+        adt.addTerm(bCte);
+
+        adt.addAxiom(new Axiom(equalsSignature.instantiates(aCte, aCte), boolAdt.getConstant("true")));
+        adt.addAxiom(new Axiom(equalsSignature.instantiates(aCte, bCte), boolAdt.getConstant("false")));
+        adt.addAxiom(new Axiom(equalsSignature.instantiates(bCte, aCte), boolAdt.getConstant("false")));
+        adt.addAxiom(new Axiom(equalsSignature.instantiates(bCte, bCte), boolAdt.getConstant("true")));
+
+        adt.addAxiom(new Axiom(equalsSignature.instantiates(varX, bCte), nSignature.instantiates(varX), aCte));
+
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifier.canUnify(nSignature.instantiates(varX), aCte, bags));        
+    }
+
+    @Test
+    public void testCanUnifyAwd2() {        
+        Sort sort = new Sort("sort");
+        Adt adt = new Adt(sort);
+
+        OperationSignature projSignature = new OperationSignature("proj", false, sort, sort, sort);
+        adt.addOperationSignature(projSignature);
+
+        OperationSignature succSignature = new OperationSignature("succ", true, sort, sort);
+        adt.addOperationSignature(succSignature);
+
+        OperationSignature addSignature = new OperationSignature("add", false, sort, sort, sort);
+        adt.addOperationSignature(addSignature);
+
+        Variable varX = new Variable("x", sort);
+        Variable varY = new Variable("y", sort);
+        Constant zeroCte = new Constant("0", sort);
+        adt.addTerm(zeroCte);
+
+        adt.addAxiom(new Axiom(projSignature.instantiates(varX, varY), varY));
+        adt.addAxiom(new Axiom(addSignature.instantiates(zeroCte, varX), varX));
+        adt.addAxiom(new Axiom(addSignature.instantiates(varX, zeroCte), varX));
+        adt.addAxiom(new Axiom(addSignature.instantiates(succSignature.instantiates(varX), varY), succSignature.instantiates(addSignature.instantiates(varX, varY))));
+
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        //assertTrue(unifier.canUnify(projSignature.instantiates(varX, zeroCte), zeroCte, bags));
+        //bags.clear();
+        //assertTrue(unifier.canUnify(addSignature.instantiates(varX, projSignature.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte), bags));
+        //assertTrue(unifier.canUnify(addSignature.instantiates(varX, projSignature.instantiates(varX, varY)), succSignature.instantiates(zeroCte), bags));
     }
 }

@@ -1,12 +1,14 @@
 Next steps
 ==========
 
-- term rewritter: exception quand aucun adt ne correspond au sort d'un term
+- regarder si on peut éviter le code bizard dans trygetsubs en passant renomant la precondition
 
-- ajouter les préconditions aux axiomes
--- c'est un term de codomain boolean
+- les résultats de la deuxième étape d'unification d'un axiom doivent être filtrés par rapport à ces variables !
 
-- adt.getAxiom => termRewritter
+- les variables générées doivent être constituées d'un préfixe plus d'une guid
+-- pour qu'on sache que c'est des variables libres à la fin...
+
+- adt.getAxiom => termRewritter ?
 
 - on doit toujours retourner un SubstitutionBag, meme si l'operation tryMatch n'a pas reussi
 -- SubstitutionBag doit contenir un flag success
@@ -33,6 +35,8 @@ Next steps
 -- cela implique d'avoir une operation qui fait seuleemnt le equals et non le rewrite pour savoir si x != false
 
 - problème de dépendence de namespace circulaire
+
+- term => classe abstraite
 
 Notes
 =====

@@ -2,11 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
 import com.yapnu.adt.model.BooleanAdt;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class Axiom {
         this.precondition = precondition;
         this.leftTerm = leftTerm;
         this.rightTerm = rightTerm;
-        
+
         if (this.leftTerm.equals(this.rightTerm)) {
             throw new IllegalArgumentException("Both sides cannot be equals.");
         }
@@ -55,8 +55,8 @@ public class Axiom {
             this.preconditionMustContainSomeVariables();
         }
 
-        this.variablesMustHaveSameSortInBothSide(this.leftTerm, this.rightTerm);        
-        this.validatesOccursCheck();        
+        this.variablesMustHaveSameSortInBothSide(this.leftTerm, this.rightTerm);
+        this.validatesOccursCheck();
     }
 
     public Term getLeftTerm() {
@@ -81,54 +81,13 @@ public class Axiom {
         return rewrittenPrecondition.equals(BooleanAdt.instance().getAdt().getConstant("true"));
     }
 
-    boolean canUnify(TermUnifier termUnifier, Term term, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
-        // est-ce que l'axiom peut s'appliquer (en verifiant la conclusion de l'axiom) ?
-        HashSet<SubstitutionBag> axiomConclusionSubstitutionSet = new HashSet<SubstitutionBag>();
-        boolean canUseAxiom = termUnifier.canUnify(this.rightTerm, expectedValue, axiomConclusionSubstitutionSet);
-        if (!canUseAxiom) {
-            return false;
-        }
+    boolean canUnify(SubstitutionBag renamedVariables, TermUnifier termUnifier, Term term, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+        RightTermUnifier fourth = new RightTermUnifier(termUnifier);
+        PreconditionUnifier third = new PreconditionUnifier(fourth, termUnifier, renamedVariables);
+        LeftTermUnifier second = new LeftTermUnifier(third, termUnifier, term);
+        ConclusionUnifier first = new ConclusionUnifier(second, termUnifier);
 
-        if (axiomConclusionSubstitutionSet.size() == 0) {
-            axiomConclusionSubstitutionSet.add(new SubstitutionBag());
-        }
-
-        boolean canAxiomBeUnified = false;
-        for (SubstitutionBag axiomConclusionSubstitutions : axiomConclusionSubstitutionSet) {
-            // est-ce qu'on peut unifier le membre de gauche de l'axiome avec la substitution faite sur le droit?
-            Term leftTermSubstituted = this.leftTerm.substitutes(axiomConclusionSubstitutions);
-            HashSet<SubstitutionBag> leftTermSubstitutionSet = new HashSet<SubstitutionBag>();
-            boolean canSubstituteLeftTermWithConclusionSubstitutions = term.canUnifyRecursively(termUnifier, leftTermSubstituted, leftTermSubstitutionSet);
-            if (!canSubstituteLeftTermWithConclusionSubstitutions) {
-                continue;
-            }
-
-            if (leftTermSubstitutionSet.size() == 0) {
-                leftTermSubstitutionSet.add(new SubstitutionBag());
-            }
-
-            for (SubstitutionBag leftTermSubstitutions : leftTermSubstitutionSet) {
-                if (this.precondition != null) {
-                    Term substitutedPrecondition = this.precondition.substitutes(leftTermSubstitutions).substitutes(axiomConclusionSubstitutions);
-                    Term rewrittenPrecondition = termUnifier.getRewritter().rewritte(substitutedPrecondition);
-                    if (!rewrittenPrecondition.equals(BooleanAdt.instance().getAdt().getConstant("true"))) {
-                        continue;
-                    }
-                }
-
-                HashSet<SubstitutionBag> tmpSet = new HashSet<SubstitutionBag>();
-                Term rightTermSubstituted = this.rightTerm.substitutes(leftTermSubstitutions);
-                boolean success = termUnifier.canUnify(rightTermSubstituted, expectedValue, tmpSet);
-                if (!success) {
-                    continue;
-                }
-
-                substitutionSet.add(leftTermSubstitutions);
-                canAxiomBeUnified = true;
-            }
-        }
-
-        return canAxiomBeUnified;
+        return first.execute(termUnifier, expectedValue, substitutionSet, new SubstitutionBag());
     }
 
     @Override
@@ -159,16 +118,15 @@ public class Axiom {
         return hash;
     }
 
-    private void variablesMustHaveSameSortInBothSide(Term firstTerm, Term secondTerm) {        
+    private void variablesMustHaveSameSortInBothSide(Term firstTerm, Term secondTerm) {
         ImmutableSet<Variable> firstVariables = firstTerm.getVariables();
         ImmutableSet<Variable> secondVariables = secondTerm.getVariables();
 
         HashMap<String, Variable> secondVariablesPerName = new HashMap<String, Variable>();
-        for (Variable variable : secondVariables)
-        {
+        for (Variable variable : secondVariables) {
             secondVariablesPerName.put(variable.getName(), variable);
         }
-        
+
         for (Variable firstVariable : firstVariables) {
             if (secondVariablesPerName.containsKey(firstVariable.getName())) {
                 Variable rightVariable = secondVariablesPerName.get(firstVariable.getName());
@@ -177,7 +135,7 @@ public class Axiom {
                 }
             }
         }
-        
+
     }
 
     private void areAllPreconditionVariablesContainedInLeftTerm() {
@@ -187,7 +145,7 @@ public class Axiom {
             if (!leftTermVariables.contains(preconditionVariable)) {
                 throw new IllegalArgumentException("The precondition contains some variables that are not contained it the left term.");
             }
-        }        
+        }
     }
 
     private void validatesOccursCheck() {
@@ -208,5 +166,150 @@ public class Axiom {
     @Override
     public String toString() {
         return this.leftTerm.toString() + " = " + this.rightTerm.toString();
+    }
+
+    private abstract class AxiomUnifier {
+        private AxiomUnifier next;
+
+        private AxiomUnifier(AxiomUnifier next) {
+            this.next = next;
+        }
+
+        boolean execute(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> finalSubstitutions, SubstitutionBag... previousSubstitutions) {
+            Set<SubstitutionBag> substitutionSet = new HashSet<SubstitutionBag>();
+            boolean canUseAxiom = this.unify(expectedValue, substitutionSet, previousSubstitutions);
+            if (!canUseAxiom) {
+                return false;
+            }
+
+            if (next == null) {
+                return true;
+            }
+
+            if (substitutionSet.size() == 0) {
+                substitutionSet.add(new SubstitutionBag());
+            }
+
+            boolean canUnify = false;
+            SubstitutionBag[] bags = Arrays.copyOf(previousSubstitutions, previousSubstitutions.length + 1);
+            for (SubstitutionBag substitutions : substitutionSet) {
+                bags[previousSubstitutions.length] = substitutions;
+                if (next.execute(termUnifier, expectedValue, finalSubstitutions, bags)) {
+                    canUnify = true;
+                }
+
+                add(finalSubstitutions, substitutions, previousSubstitutions);
+            }
+
+            return canUnify;
+        }
+
+        protected abstract boolean unify(Term expectedValue, Set<SubstitutionBag> substitutionSet, SubstitutionBag... previousSubstitutions);
+
+        protected abstract void add(Set<SubstitutionBag> substitutionSet, SubstitutionBag substitutions, SubstitutionBag... previousSubstitutions);
+    }
+
+    private class ConclusionUnifier extends AxiomUnifier {
+        private TermUnifier termUnifier;
+
+        public ConclusionUnifier(AxiomUnifier next, TermUnifier termUnifier) {
+            super(next);
+            this.termUnifier = termUnifier;
+        }
+
+        @Override
+        protected boolean unify(Term expectedValue, Set<SubstitutionBag> substitutionSet, SubstitutionBag... previousSubstitutions) {
+            return termUnifier.canUnify(rightTerm, expectedValue, substitutionSet);
+        }
+
+        @Override
+        protected void add(Set<SubstitutionBag> substitutionSet, SubstitutionBag substitutions, SubstitutionBag... previousSubstitutions) {
+        }
+    }
+
+    private class LeftTermUnifier extends AxiomUnifier {
+        private TermUnifier termUnifier;
+        private Term term;
+
+        public LeftTermUnifier(AxiomUnifier next, TermUnifier termUnifier, Term term) {
+            super(next);
+            this.termUnifier = termUnifier;
+            this.term = term;
+        }
+
+        @Override
+        protected boolean unify(Term expectedValue, Set<SubstitutionBag> substitutionSet, SubstitutionBag... previousSubstitutions) {
+            Term substitutedTerm = leftTerm;
+            for (SubstitutionBag previousSubstitution : previousSubstitutions) {
+                substitutedTerm = substitutedTerm.substitutes(previousSubstitution);
+            }
+
+            return term.canUnifyRecursively(termUnifier, substitutedTerm, substitutionSet);
+        }
+
+        @Override
+        protected void add(Set<SubstitutionBag> substitutionSet, SubstitutionBag substitutions, SubstitutionBag... previousSubstitutions) {
+        }
+    }
+
+    private class PreconditionUnifier extends AxiomUnifier {
+        private TermUnifier termUnifier;
+        private SubstitutionBag renamedVariables;
+
+        public PreconditionUnifier(AxiomUnifier next, TermUnifier termUnifier, SubstitutionBag renamedVariables) {
+            super(next);
+            this.termUnifier = termUnifier;
+            this.renamedVariables = renamedVariables;
+        }
+
+        @Override
+        protected boolean unify(Term expectedValue, Set<SubstitutionBag> substitutionSet, SubstitutionBag... previousSubstitutions) {
+            if (precondition == null) {
+                return true;
+            }
+
+            Term substitutedTerm = precondition;
+            for (SubstitutionBag previousSubstitution : previousSubstitutions) {
+                substitutedTerm = substitutedTerm.substitutes(previousSubstitution);
+            }
+
+            substitutedTerm = substitutedTerm.substitutes(renamedVariables);
+
+            return termUnifier.canUnify(substitutedTerm, BooleanAdt.instance().getAdt().getConstant("true"), substitutionSet);
+        }
+
+        @Override
+        protected void add(Set<SubstitutionBag> substitutionSet, SubstitutionBag substitutions, SubstitutionBag... previousSubstitutions) {
+            SubstitutionBag tmp = new SubstitutionBag();
+            tmp.tryAddSubstitutions(substitutions);
+            for (int i = 2; i < previousSubstitutions.length; i++) {
+                tmp.tryAddSubstitutions(previousSubstitutions[i]);
+            }
+
+            substitutionSet.add(tmp);
+        }
+    }
+
+    private class RightTermUnifier extends AxiomUnifier {
+        private TermUnifier termUnifier;
+
+        public RightTermUnifier(TermUnifier termUnifier) {
+            super(null);
+            this.termUnifier = termUnifier;
+        }
+
+        @Override
+        protected boolean unify(Term expectedValue, Set<SubstitutionBag> substitutionSet, SubstitutionBag... previousSubstitutions) {
+            Term substitutedTerm = rightTerm;
+            for (SubstitutionBag previousSubstitution : previousSubstitutions) {
+                substitutedTerm = substitutedTerm.substitutes(previousSubstitution);
+            }
+
+            return termUnifier.canUnify(substitutedTerm, expectedValue, new HashSet<SubstitutionBag>());
+        }
+
+        @Override
+        protected void add(Set<SubstitutionBag> substitutionSet, SubstitutionBag substitutions, SubstitutionBag... previousSubstitutions) {
+        }
     }
 }
