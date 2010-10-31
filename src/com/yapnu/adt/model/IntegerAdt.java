@@ -20,9 +20,9 @@ public class IntegerAdt {
 
     private static final Sort sort = new Sort("int");
     private static IntegerAdt instance;
-    private final Adt adt;
+    private final Adt adt;    
 
-    private IntegerAdt() {
+    private IntegerAdt() {        
         this.adt = buildAdt();
     }
 
@@ -56,7 +56,7 @@ public class IntegerAdt {
         return result;
     }
 
-    private Adt buildAdt() {
+    private Adt buildAdt() {        
         Adt adt = new Adt(sort);
 
         adt.addTerm(new Constant("0", sort));

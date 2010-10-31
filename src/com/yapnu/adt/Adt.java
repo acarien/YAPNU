@@ -157,10 +157,6 @@ public class Adt {
         boolean hasUnified = false;
         Set<SubstitutionBag> localSubstitutionSet = new HashSet<SubstitutionBag>();
         for (Axiom possibleAxiom : this.axiomPerName.get(renamedTerm.getName())) {
-            
-            /*if (possibleAxiom.canUnify2(termUnifier, renamedTerm, expectedValue, localSubstitutionSet)) {
-                hasUnified = true;
-            }*/
 
             // passer la ssubstaitution renamedVariables
             if (possibleAxiom.canUnify(renamedVariables, termUnifier, renamedTerm, expectedValue, localSubstitutionSet)) {

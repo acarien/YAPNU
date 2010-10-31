@@ -3,10 +3,10 @@ Next steps
 
 - regarder si on peut éviter le code bizard dans trygetsubs en passant renomant la precondition
 
-- les résultats de la deuxième étape d'unification d'un axiom doivent être filtrés par rapport à ces variables !
+- enlever les singletons sur les adts...
 
-- les variables générées doivent être constituées d'un préfixe plus d'une guid
--- pour qu'on sache que c'est des variables libres à la fin...
+
+- les résultats de la deuxième étape d'unification d'un axiom doivent être filtrés par rapport à ces variables !
 
 - adt.getAxiom => termRewritter ?
 
@@ -43,7 +43,6 @@ Notes
 
 Adt
 ------
-- enlever les singletons sur les adts...
 - ajouter une interface/... AdtFactory
 - modifier les equals et hashcode pour regarder ce qui se passe quand il y a plusieurs adt
 - modéliser le réseau

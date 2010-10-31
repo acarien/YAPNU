@@ -268,7 +268,7 @@ public class TermUnifierTest {
     }
 
     @Test
-    public void testCanUnifyAwd() {
+    public void testCanUnifyWithPrecondition() {
         Adt boolAdt = BooleanAdt.instance().getAdt();
         Sort sort = new Sort("sort");
         Adt adt = new Adt(sort);
@@ -294,38 +294,125 @@ public class TermUnifierTest {
 
         TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
         Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifier.canUnify(nSignature.instantiates(varX), aCte, bags));        
+        assertTrue(unifier.canUnify(nSignature.instantiates(varX), aCte, bags));
+
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(varX).equals(bCte));
     }
 
     @Test
-    public void testCanUnifyAwd2() {        
-        Sort sort = new Sort("sort");
-        Adt adt = new Adt(sort);
+    public void testCanUnifyWithFreeVariable() {
+        IntAdt2 intAdt2 = new IntAdt2();
+        Adt adt = intAdt2.getAdt();
 
-        OperationSignature projSignature = new OperationSignature("proj", false, sort, sort, sort);
-        adt.addOperationSignature(projSignature);
-
-        OperationSignature succSignature = new OperationSignature("succ", true, sort, sort);
-        adt.addOperationSignature(succSignature);
-
-        OperationSignature addSignature = new OperationSignature("add", false, sort, sort, sort);
-        adt.addOperationSignature(addSignature);
-
-        Variable varX = new Variable("x", sort);
-        Variable varY = new Variable("y", sort);
-        Constant zeroCte = new Constant("0", sort);
-        adt.addTerm(zeroCte);
-
-        adt.addAxiom(new Axiom(projSignature.instantiates(varX, varY), varY));
-        adt.addAxiom(new Axiom(addSignature.instantiates(zeroCte, varX), varX));
-        adt.addAxiom(new Axiom(addSignature.instantiates(varX, zeroCte), varX));
-        adt.addAxiom(new Axiom(addSignature.instantiates(succSignature.instantiates(varX), varY), succSignature.instantiates(addSignature.instantiates(varX, varY))));
+        Variable varX = adt.getVariable("x");
+        Constant zeroCte = adt.getConstant("0");
+        OperationSignature proj2 = adt.getOperationSignature("proj2");
+        OperationSignature addSignature = adt.getOperationSignature("add");
+        OperationSignature succSignature = adt.getOperationSignature("succ");
 
         TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
         Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        //assertTrue(unifier.canUnify(projSignature.instantiates(varX, zeroCte), zeroCte, bags));
-        //bags.clear();
-        //assertTrue(unifier.canUnify(addSignature.instantiates(varX, projSignature.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte), bags));
+        assertTrue(unifier.canUnify(proj2.instantiates(varX, zeroCte), zeroCte, bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(varX) instanceof Variable);
+        assertTrue(tmp[0].isFreeVariable(varX));
+        
+        bags.clear();
+        assertTrue(unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte), bags));
+
+
+        
         //assertTrue(unifier.canUnify(addSignature.instantiates(varX, projSignature.instantiates(varX, varY)), succSignature.instantiates(zeroCte), bags));
+    }
+
+    @Test
+    public void testCanUnifyWithFreeVariableConstrainedWithOtherTerm() {
+        IntAdt2 intAdt2 = new IntAdt2();
+        Adt adt = intAdt2.getAdt();
+
+        Variable varX = adt.getVariable("x");
+        Constant zeroCte = adt.getConstant("0");
+        OperationSignature proj2 = adt.getOperationSignature("proj2");
+        OperationSignature addSignature = adt.getOperationSignature("add");
+        OperationSignature succSignature = adt.getOperationSignature("succ");
+
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte), bags));
+        assertTrue(bags.size() == 1);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);
+        assertTrue(tmp[0].getValue(varX).equals(succSignature.instantiates(zeroCte)));
+                
+        //assertTrue(unifier.canUnify(addSignature.instantiates(varX, projSignature.instantiates(varX, varY)), succSignature.instantiates(zeroCte), bags));
+    }
+
+    @Test
+    public void testCanUnifyWithFreeVariableConstrainedWithOtherTerm2() {
+        IntAdt2 intAdt2 = new IntAdt2();
+        Adt adt = intAdt2.getAdt();
+
+        Variable varX = adt.getVariable("x");
+        Variable varY = adt.getVariable("y");
+        Constant zeroCte = adt.getConstant("0");
+        OperationSignature proj2 = adt.getOperationSignature("proj2");
+        OperationSignature addSignature = adt.getOperationSignature("add");
+        OperationSignature succSignature = adt.getOperationSignature("succ");
+
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
+        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
+        assertTrue(unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, varY)), succSignature.instantiates(zeroCte), bags));
+        assertTrue(bags.size() == 2);
+        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        bags.toArray(tmp);        
+        assertTrue(tmp[0].getValue(varX).equals(succSignature.instantiates(zeroCte)));
+        assertTrue(tmp[0].getValue(varY).equals(zeroCte));
+
+        assertTrue(tmp[1].getValue(varX).equals(zeroCte));
+        assertTrue(tmp[1].getValue(varY).equals(succSignature.instantiates(zeroCte)));
+    }
+
+
+    private class IntAdt2 {
+        private final Sort sort = new Sort("sort");
+        private Adt adt;
+
+        public Adt getAdt() {
+            if (adt == null) {
+                this.build();
+            }
+            
+            return adt;
+        }
+
+        private void build() {
+            adt = new Adt(sort);
+
+            OperationSignature proj2Signature = new OperationSignature("proj2", false, sort, sort, sort);
+            adt.addOperationSignature(proj2Signature);
+
+            OperationSignature succSignature = new OperationSignature("succ", true, sort, sort);
+            adt.addOperationSignature(succSignature);
+
+            OperationSignature addSignature = new OperationSignature("add", false, sort, sort, sort);
+            adt.addOperationSignature(addSignature);
+
+            Variable varX = new Variable("x", sort);
+            Variable varY = new Variable("y", sort);
+            adt.addTerm(varX);
+            adt.addTerm(varY);
+            
+            Constant zeroCte = new Constant("0", sort);
+            adt.addTerm(zeroCte);
+
+            adt.addAxiom(new Axiom(proj2Signature.instantiates(varX, varY), varY));
+            adt.addAxiom(new Axiom(addSignature.instantiates(zeroCte, varX), varX));
+            adt.addAxiom(new Axiom(addSignature.instantiates(varX, zeroCte), varX));
+            adt.addAxiom(new Axiom(addSignature.instantiates(succSignature.instantiates(varX), varY), succSignature.instantiates(addSignature.instantiates(varX, varY))));
+        }
     }
 }

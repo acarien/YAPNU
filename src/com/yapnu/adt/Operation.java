@@ -209,6 +209,7 @@ public class Operation implements Term {
         return this.signature.instantiates(newParameters);
     }
 
+    @Override
     public boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
         if (!(expectedValue instanceof Operation)) {
             return false;
@@ -233,11 +234,13 @@ public class Operation implements Term {
         }
 
         if (allParametersAreUnified) {
-            Set<SubstitutionBag> result = SubstitutionBagCollection.Distribute(allSubstitutionSet);
-            // on doit filiter le resultat par rapport aux variables du terme
+            Set<SubstitutionBag> result = new HashSet<SubstitutionBag>();
+            if (!SubstitutionBagCollection.Distribute(allSubstitutionSet, result)) {
+                return false;
+            }
 
-            // le test est faux, c'est le nombre de bag non-vide qui compte:
-            // si on avait des substitutions et qu'elles sont incompatibles, alors on la substition n'est pas bonne
+            // on doit filtrer le resultat par rapport aux variables du terme
+            
             if (allSubstitutionSet.size() > 0 && result.size() == 0) {
                 return false;
             }

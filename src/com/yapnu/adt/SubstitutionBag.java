@@ -7,6 +7,7 @@ package com.yapnu.adt;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -40,6 +41,15 @@ public class SubstitutionBag {
 
     public int size() {
         return this.substitutions.size();
+    }
+
+    public boolean isFreeVariable(Variable substituted) {
+        if (!this.hasSubstitution(substituted)) {
+            return false;
+        }
+
+        Term term = this.getValue(substituted);
+        return term instanceof Variable;
     }
 
     public boolean tryAddSubstitution(Substitution substitution) {

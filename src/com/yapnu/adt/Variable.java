@@ -16,8 +16,13 @@ import java.util.UUID;
 public class Variable implements Term {
     private final Sort sort;
     private final String name;
+    private final boolean isGenerated;
 
     public Variable(String name, Sort sort) {
+        this(name, sort, false);
+    }
+
+    private Variable(String name, Sort sort, boolean isGenerated) {
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Variable name cannot be null or empty.");
         }
@@ -28,6 +33,7 @@ public class Variable implements Term {
         
         this.sort = sort;
         this.name = name;
+        this.isGenerated = isGenerated;
     }
 
     @Override
@@ -48,6 +54,10 @@ public class Variable implements Term {
     @Override
     public boolean isNormalForm() {
         return false;
+    }
+
+    public boolean isGenerated() {
+        return isGenerated;
     }
 
     @Override
@@ -110,6 +120,14 @@ public class Variable implements Term {
             return false;
         }
 
+        if (this == other) {
+            return true;
+        }
+
+        if (this.isGenerated == other.isGenerated) {
+            return true;
+        }
+
         if (this.sort != other.sort && (this.sort == null || !this.sort.equals(other.sort))) {
             return false;
         }
@@ -144,7 +162,7 @@ public class Variable implements Term {
             return substitutions.getValue(this);
         }
 
-        Variable clone = new Variable(UUID.randomUUID().toString(), this.sort);
+        Variable clone = new Variable(UUID.randomUUID().toString(), this.sort, true);
         if (!substitutions.tryAddSubstitution(this, clone)) {
             throw new IllegalArgumentException("groupmf!");
         }

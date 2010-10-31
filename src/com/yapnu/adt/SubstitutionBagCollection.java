@@ -15,17 +15,24 @@ import java.util.Set;
  * @author adrien
  */
 public class SubstitutionBagCollection implements Iterable<SubstitutionBag> {
+    private boolean success = false;
     private Set<SubstitutionBag> set = new HashSet<SubstitutionBag>();
-    private SubstitutionBag constraint;
 
     public SubstitutionBagCollection() {
     }
 
-    public SubstitutionBagCollection(SubstitutionBag constraint) {
-        this.constraint = constraint;
+    public SubstitutionBagCollection(boolean success) {
+        this.success = success;
     }
 
-    
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
     public void add(SubstitutionBag bag) {
         set.add(bag);
     }
@@ -51,9 +58,13 @@ public class SubstitutionBagCollection implements Iterable<SubstitutionBag> {
         return set.iterator();
     }
 
-    public static Set<SubstitutionBag> Distribute(ArrayList<Set<SubstitutionBag>> bags) {
+    public static boolean Distribute(ArrayList<Set<SubstitutionBag>> bags, Set<SubstitutionBag> result) {
         if (bags == null) {
             throw new IllegalArgumentException("Bags cannot be null.");
+        }
+
+        if (result == null) {
+            throw new IllegalArgumentException("Result cannot be null.");
         }
 
         for (Set<SubstitutionBag> bag : bags) {
@@ -65,37 +76,46 @@ public class SubstitutionBagCollection implements Iterable<SubstitutionBag> {
                 bag.add(new SubstitutionBag());
             }
         }
+        
+        if (bags.size() == 0) {
+            return true;
+        }
 
-        Set<SubstitutionBag> result = new HashSet<SubstitutionBag>();
-        if (bags.size() > 0) {
-            for (SubstitutionBag bag : bags.get(0)) {
-                CanDistribute(bags, 1, bag, result);
+        boolean hasSucceeded = false;
+        for (SubstitutionBag bag : bags.get(0)) {
+            if (CanDistribute(bags, 1, bag, result)) {
+                hasSucceeded = true;
             }
         }
 
-        return result;
+        return hasSucceeded;
     }
 
-    private static void CanDistribute(ArrayList<Set<SubstitutionBag>> bags, int index, SubstitutionBag current, Set<SubstitutionBag> result) {
+    private static boolean CanDistribute(ArrayList<Set<SubstitutionBag>> bags, int index, SubstitutionBag current, Set<SubstitutionBag> result) {
         if (index >= bags.size()) {
             SubstitutionBag res = new SubstitutionBag();
             res.tryAddSubstitutions(current);
             result.add(res);
-            return;
+            return true;
         }
 
         SubstitutionBag copy = new SubstitutionBag();
         copy.tryAddSubstitutions(current);
 
+        boolean hasSucceeded = false;
         for (SubstitutionBag bag : bags.get(index)) {
             current.clear();
             current.tryAddSubstitutions(copy);
 
             if (!current.tryAddSubstitutions(bag)) {
-                return;
+                continue;
             }
 
-            CanDistribute(bags, index + 1, current, result);
+            if (CanDistribute(bags, index + 1, current, result)) {
+                hasSucceeded = true;
+            }
         }
+
+        return hasSucceeded;
     }
 }
