@@ -38,6 +38,10 @@ public class Substitution {
         return substituted;
     }
 
+    public boolean isFreeVariable() {
+        return value instanceof Variable;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

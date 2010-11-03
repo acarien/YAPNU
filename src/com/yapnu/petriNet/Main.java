@@ -5,8 +5,6 @@
 
 package com.yapnu.petriNet;
 
-import java.util.HashSet;
-
 /**
  *
  * @author adrien

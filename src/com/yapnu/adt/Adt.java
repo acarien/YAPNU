@@ -6,9 +6,7 @@
 package com.yapnu.adt;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Set;
 
 /**
  *
@@ -146,38 +144,42 @@ public class Adt {
         this.axioms.put(axiom.getLeftTerm(), axiom);
     }
 
-     boolean canUnifyThroughAxioms(TermUnifier termUnifier, Term term, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+     Unification canUnifyThroughAxioms(TermUnifier termUnifier, Term term, Term expectedValue) {        
         SubstitutionBag renamedVariables = new SubstitutionBag();
         Term renamedTerm = term.renameVariables(renamedVariables);
 
         if (!this.axiomPerName.containsKey(term.getName())) {
-            return false;
+            return Unification.FAIL;
         }
 
         boolean hasUnified = false;
-        Set<SubstitutionBag> localSubstitutionSet = new HashSet<SubstitutionBag>();
+        LinkedList<Unification> unificationsPerAxiom = new LinkedList<Unification>();
         for (Axiom possibleAxiom : this.axiomPerName.get(renamedTerm.getName())) {
-
-            // passer la ssubstaitution renamedVariables
-            if (possibleAxiom.canUnify(renamedVariables, termUnifier, renamedTerm, expectedValue, localSubstitutionSet)) {
+            Unification unification = possibleAxiom.canUnify(renamedVariables, termUnifier, renamedTerm, expectedValue);
+            if (unification.isSuccess()) {
+                unificationsPerAxiom.addLast(unification);
                 hasUnified = true;
             }
         }
 
         if (!hasUnified) {
-            return false;
+            return Unification.FAIL;
         }
 
-        for (SubstitutionBag substitutions : localSubstitutionSet) {
-            // on ne doit remonter les subs que pour les variables reecrites
-            if (!substitutions.tryAddSubstitutions(renamedVariables)) {
-                return false;
+        Unification unification = new Unification();
+        for (Unification unificationPerAxiom : unificationsPerAxiom) {
+            for (SubstitutionBag substitutions : unificationPerAxiom) {
+                // on ne doit remonter les subs que pour les variables reecrites
+                if (!substitutions.tryAddSubstitutions(renamedVariables)) {
+                    return Unification.FAIL;
+                }
+
+                substitutions.retainsAll(term.getVariables());
+                unification.add(substitutions);
             }
-
-            substitutions.retainsAll(term.getVariables());
-            substitutionSet.add(substitutions);
         }
 
-        return true;
+
+        return unification;
     }
 }

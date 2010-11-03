@@ -9,7 +9,7 @@ package com.yapnu.adt;
  *
  * @author adrien
  */
-public class Sort {   
+public final class Sort {
     private final String name;    
     
     public Sort(String name) {

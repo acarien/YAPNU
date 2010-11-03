@@ -11,7 +11,7 @@ import java.util.Arrays;
  *
  * @author adrien
  */
-public class OperationSignature {
+public final class OperationSignature {
 
     private final String name;
     private final Sort[] domain;

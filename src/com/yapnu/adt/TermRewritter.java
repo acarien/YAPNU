@@ -4,11 +4,7 @@
  */
 package com.yapnu.adt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Collection;
 
 /**
  *
@@ -16,45 +12,12 @@ import java.util.LinkedList;
  */
 public class TermRewritter {
     
-    private final HashMap<Sort, LinkedList<Adt>> adts;
+    private final AdtBag adtBag;
 
-    public TermRewritter(Adt adt) {        
-        this.adts = new HashMap<Sort, LinkedList<Adt>>();
-        this.addAdt(adt);
-        
+    public TermRewritter(AdtBag adts) {
+        this.adtBag = adts;
     }
-
-    public TermRewritter(ArrayList<Adt> adts) {
-        HashSet<Sort> sorts = new HashSet<Sort>();
-        this.adts = new HashMap<Sort, LinkedList<Adt>>();
-        for (Adt adt : adts) {
-            if (sorts.contains(adt.getSort())) {
-                throw new IllegalArgumentException("Cannot have two adts with the same main sort.");
-            }
-
-            sorts.add(adt.getSort());
-
-            this.addAdt(adt);
-        }
-    }
-
-    private void addAdt(Adt adt) {
-        if (!this.adts.containsKey(adt.getSort())) {
-            this.adts.put(adt.getSort(), new LinkedList<Adt>());
-        }
-
-        this.adts.get(adt.getSort()).addFirst(adt);
-
-        LinkedList<Sort> otherSorts = adt.getAdditionalCodomains();
-        for (Sort sort : otherSorts) {
-            if (!this.adts.containsKey(sort)) {
-                this.adts.put(sort, new LinkedList<Adt>());
-            }
-
-            this.adts.get(sort).addLast(adt);
-        }
-    }
-        
+                
     public Term rewritte(Term term) {
        return this.rewritte(term, null);
     }
@@ -70,7 +33,7 @@ public class TermRewritter {
                 return currentTerm;
             }
 
-            if (!this.adts.containsKey(currentTerm.getSort())) {
+            if (!this.adtBag.hasAdt(currentTerm.getSort())) {
                 throw new IllegalArgumentException("Cannot rewrite a term of the sort " + currentTerm.getSort().toString() + ".");
             }
 
@@ -90,9 +53,8 @@ public class TermRewritter {
     }
 
     private Axiom getAxiom(Term term) {
-        LinkedList<Adt> foundAdts = this.adts.get(term.getSort());
-        for (Iterator<Adt> iterator = foundAdts.descendingIterator(); iterator.hasNext();) {
-            Adt adt = iterator.next();
+        Collection<Adt> foundAdts = this.adtBag.getAdt(term.getSort());
+        for (Adt adt : foundAdts) {            
             Axiom axiom = adt.getAxiom(this, term);
             if (axiom != null) {
                 return axiom;

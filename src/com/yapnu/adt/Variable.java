@@ -6,7 +6,6 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -118,15 +117,7 @@ public class Variable implements Term {
     public boolean equals(Variable other) {
         if (other == null) {
             return false;
-        }
-
-        if (this == other) {
-            return true;
-        }
-
-        if (this.isGenerated == other.isGenerated) {
-            return true;
-        }
+        }              
 
         if (this.sort != other.sort && (this.sort == null || !this.sort.equals(other.sort))) {
             return false;
@@ -170,7 +161,8 @@ public class Variable implements Term {
         return clone;
     }
 
-    public boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
-        return false;
+    @Override
+    public Unification canUnify(TermUnifier termUnifier, Term expectedValue) {
+        return Unification.FAIL;
     }
 }

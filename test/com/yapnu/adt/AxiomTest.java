@@ -7,7 +7,6 @@ package com.yapnu.adt;
 
 import com.yapnu.adt.model.BooleanAdt;
 import com.yapnu.adt.model.IntegerAdt;
-import java.util.ArrayList;
 import org.junit.Test;
 import static junit.framework.Assert.*;
 
@@ -162,7 +161,7 @@ public class AxiomTest {
    public void TestTryGetMatchingSubstitutionsWithPrecondition() {
        Adt intAdt = IntegerAdt.instance().getAdt();
        Adt boolAdt = BooleanAdt.instance().getAdt();
-       ArrayList<Adt> adts = new ArrayList<Adt>();
+       AdtBag adts = new AdtBag();
        adts.add(intAdt);
        adts.add(boolAdt);
        TermRewritter termRewritter = new TermRewritter(adts);

@@ -6,8 +6,6 @@ package com.yapnu.adt;
 
 import com.yapnu.adt.model.BooleanAdt;
 import com.yapnu.adt.model.IntegerAdt;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,7 +46,8 @@ public class TermUnifierTest {
         y = new Variable("y", intAdt.getSort());
         z = new Variable("z", intAdt.getSort());
 
-        unifer = new TermUnifier(intAdt, new TermRewritter(intAdt));
+        AdtBag adtBag = new AdtBag(intAdt);
+        unifer = new TermUnifier(intAdt, new TermRewritter(adtBag));
     }
 
     @After
@@ -60,174 +59,143 @@ public class TermUnifierTest {
      */
     @Test
     public void testCanUnifies1() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue("input term (cte) exactly matches expected value", unifer.canUnify(zero, zero, bags));
-        assertTrue(bags.size() == 0);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
+        Unification unification = unifer.canUnify(zero, zero);
+        assertTrue("input term (cte) exactly matches expected value", unification.isSuccess());
+        assertTrue(unification.size() == 0);
     }
 
     @Test
     public void testCanUnifies2() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue("input term (variable) exactly matches expected value", unifer.canUnify(x, succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(succSignature.instantiates(zero)));
+        Unification unification = unifer.canUnify(x, succSignature.instantiates(zero));
+        assertTrue("input term (variable) exactly matches expected value", unification.isSuccess());
+
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, succSignature.instantiates(zero))));
+        assertTrue(unification.equals(expectedUnification));        
     }
 
     @Test
     public void testCanUnifies3() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue("input term (variable) exactly matches expected value", unifer.canUnify(x, succSignature.instantiates(succSignature.instantiates(zero)), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(succSignature.instantiates(succSignature.instantiates(zero))));
+        Unification unification = unifer.canUnify(x, succSignature.instantiates(succSignature.instantiates(zero)));
+        assertTrue("input term (variable) exactly matches expected value", unification.isSuccess());
+                
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, succSignature.instantiates(succSignature.instantiates(zero)))));
+        assertTrue(unification.equals(expectedUnification));        
     }
 
     @Test
     public void testCanUnifies4() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue("input term (operation) exactly matches expected value", unifer.canUnify(addSignature.instantiates(zero, succSignature.instantiates(zero)), succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 0);
+        Unification unification = unifer.canUnify(addSignature.instantiates(zero, succSignature.instantiates(zero)), succSignature.instantiates(zero));
+        assertTrue("input term (operation) exactly matches expected value", unification.isSuccess());
+        assertTrue(unification.size() == 0);
     }
 
     @Test
     public void testCanUnifies5() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue("input term (operation) exactly matches expected value", unifer.canUnify(addSignature.instantiates(succSignature.instantiates(zero), zero), succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 0);
+        Unification unification =unifer.canUnify(addSignature.instantiates(succSignature.instantiates(zero), zero), succSignature.instantiates(zero));
+        assertTrue("input term (operation) exactly matches expected value", unification.isSuccess());
+        assertTrue(unification.size() == 0);
     }
 
     @Test
     public void testCanUnifies6() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue("input term matches expecting value through a substitution", unifer.canUnify(addSignature.instantiates(x, zero), zero, bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(zero));
+        Unification unification = unifer.canUnify(addSignature.instantiates(x, zero), zero);
+        assertTrue("input term matches expecting value through a substitution", unification.isSuccess());
+        
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, zero)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies7() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue("input term matches expecting value through a substitution", unifer.canUnify(addSignature.instantiates(zero, x), zero, bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(zero));
+        Unification unification = unifer.canUnify(addSignature.instantiates(zero, x), zero);
+        assertTrue("input term matches expecting value through a substitution", unification.isSuccess());
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, zero)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies8() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(succSignature.instantiates(zero), y), succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(y).equals(zero));
+        Unification unification = unifer.canUnify(addSignature.instantiates(succSignature.instantiates(zero), y), succSignature.instantiates(zero));
+        assertTrue(unification.isSuccess());
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(y, zero)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies9() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(zero));
+        Unification unification = unifer.canUnify(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(zero));
+        assertTrue(unification.isSuccess());
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, zero)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies10() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(succSignature.instantiates(zero)), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(succSignature.instantiates(zero)));
+        Unification unification = unifer.canUnify(addSignature.instantiates(x, succSignature.instantiates(zero)), succSignature.instantiates(succSignature.instantiates(zero)));
+        assertTrue(unification.isSuccess());
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, succSignature.instantiates(zero))));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies11() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(succSignature.instantiates(x), succSignature.instantiates(succSignature.instantiates(zero))), succSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero))), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(zero));
+        Unification unification = unifer.canUnify(addSignature.instantiates(succSignature.instantiates(x), succSignature.instantiates(succSignature.instantiates(zero))), succSignature.instantiates(succSignature.instantiates(succSignature.instantiates(zero))));
+        assertTrue(unification.isSuccess());
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, zero)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies12() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(x, y), zero, bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(zero));
-        assertTrue(tmp[0].getValue(y).equals(zero));
+        Unification unification = unifer.canUnify(addSignature.instantiates(x, y), zero);
+        assertTrue(unification.isSuccess());
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, zero), new Substitution(y, zero)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies13() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(x, y), succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 2);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(x).equals(zero));
-        assertTrue(tmp[0].getValue(y).equals(succSignature.instantiates(zero)));
+        Unification unification = unifer.canUnify(addSignature.instantiates(x, y), succSignature.instantiates(zero));
+        assertTrue(unification.isSuccess());       
 
-        assertTrue(tmp[1].getValue(x).equals(succSignature.instantiates(zero)));
-        assertTrue(tmp[1].getValue(y).equals(zero));
+        SubstitutionBag expectedSubs1 = new SubstitutionBag(new Substitution(x, zero), new Substitution(y, succSignature.instantiates(zero)));
+        SubstitutionBag expectedSubs2 = new SubstitutionBag(new Substitution(y, zero), new Substitution(x, succSignature.instantiates(zero)));
+        Unification expectedUnification = new Unification(expectedSubs1, expectedSubs2);
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies14() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(x, addSignature.instantiates(y, z)), succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 3);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(y).equals(succSignature.instantiates(zero)));
-        assertTrue(tmp[0].getValue(x).equals(zero));
-        assertTrue(tmp[0].getValue(z).equals(zero));
+        Unification unification = unifer.canUnify(addSignature.instantiates(x, addSignature.instantiates(y, z)), succSignature.instantiates(zero));
+        assertTrue(unification.isSuccess());
 
-        assertTrue(tmp[1].getValue(z).equals(succSignature.instantiates(zero)));
-        assertTrue(tmp[1].getValue(x).equals(zero));
-        assertTrue(tmp[1].getValue(y).equals(zero));
-
-        assertTrue(tmp[2].getValue(x).equals(succSignature.instantiates(zero)));
-        assertTrue(tmp[2].getValue(y).equals(zero));
-        assertTrue(tmp[2].getValue(z).equals(zero));
+        SubstitutionBag expectedSubs1 = new SubstitutionBag(new Substitution(x, succSignature.instantiates(zero)), new Substitution(y, zero), new Substitution(z, zero));
+        SubstitutionBag expectedSubs2 = new SubstitutionBag(new Substitution(y, succSignature.instantiates(zero)), new Substitution(x, zero), new Substitution(z, zero));
+        SubstitutionBag expectedSubs3 = new SubstitutionBag(new Substitution(z, succSignature.instantiates(zero)), new Substitution(x, zero), new Substitution(y, zero));
+        Unification expectedUnification = new Unification(expectedSubs1, expectedSubs2, expectedSubs3);
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
     public void testCanUnifies15() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertFalse(unifer.canUnify(succSignature.instantiates(zero), zero, bags));
-        assertTrue(bags.size() == 0);
+        Unification unification = unifer.canUnify(succSignature.instantiates(zero), zero);
+        assertFalse(unification.isSuccess());
+        assertTrue(unification.size() == 0);
     }
 
     @Test
     public void testCanUnifies16() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(addSignature.instantiates(zero, zero), zero, bags));
-        assertTrue(bags.size() == 0);
+        Unification unification = unifer.canUnify(addSignature.instantiates(zero, zero), zero);
+        assertTrue(unification.isSuccess());
+        assertTrue(unification.size() == 0);
     }
 
     @Test
     public void testCanUnifies17() {
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifer.canUnify(succSignature.instantiates(x), succSignature.instantiates(zero), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].size() == 1);
-        assertTrue(tmp[0].getValue(x).equals(zero));
+        Unification unification = unifer.canUnify(succSignature.instantiates(x), succSignature.instantiates(zero));
+        assertTrue(unification.isSuccess());
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(x, zero)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
@@ -255,16 +223,15 @@ public class TermUnifierTest {
 
         adt.addAxiom(new Axiom(equalsSignature.instantiates(varX, bCte), nSignature.instantiates(varX), varX));
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifier.canUnify(nSignature.instantiates(varX), bCte, bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(varX).equals(bCte));
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        Unification unification = unifier.canUnify(nSignature.instantiates(varX), bCte);
+        assertTrue(unification.isSuccess());
 
-        bags.clear();
-        assertFalse(unifier.canUnify(nSignature.instantiates(varX), aCte, bags));
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(varX, bCte)));
+        assertTrue(unification.equals(expectedUnification));
+        
+        unification.clear();        
+        assertFalse(unifier.canUnify(nSignature.instantiates(varX), aCte).isSuccess());
     }
 
     @Test
@@ -292,13 +259,12 @@ public class TermUnifierTest {
 
         adt.addAxiom(new Axiom(equalsSignature.instantiates(varX, bCte), nSignature.instantiates(varX), aCte));
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifier.canUnify(nSignature.instantiates(varX), aCte, bags));
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        Unification unification = unifier.canUnify(nSignature.instantiates(varX), aCte);
+        assertTrue(unification.isSuccess());
 
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(varX).equals(bCte));
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(varX, bCte)));
+        assertTrue(unification.equals(expectedUnification));
     }
 
     @Test
@@ -312,21 +278,11 @@ public class TermUnifierTest {
         OperationSignature addSignature = adt.getOperationSignature("add");
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifier.canUnify(proj2.instantiates(varX, zeroCte), zeroCte, bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(varX) instanceof Variable);
-        assertTrue(tmp[0].isFreeVariable(varX));
-        
-        bags.clear();
-        assertTrue(unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte), bags));
-
-
-        
-        //assertTrue(unifier.canUnify(addSignature.instantiates(varX, projSignature.instantiates(varX, varY)), succSignature.instantiates(zeroCte), bags));
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        Unification unification = unifier.canUnify(proj2.instantiates(varX, zeroCte), zeroCte);
+        assertTrue(unification.isSuccess());
+        assertTrue(unification.size() == 1);
+        assertTrue(unification.getSubstitutions(varX).get(0).isFreeVariable());
     }
 
     @Test
@@ -340,15 +296,12 @@ public class TermUnifierTest {
         OperationSignature addSignature = adt.getOperationSignature("add");
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte), bags));
-        assertTrue(bags.size() == 1);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);
-        assertTrue(tmp[0].getValue(varX).equals(succSignature.instantiates(zeroCte)));
-                
-        //assertTrue(unifier.canUnify(addSignature.instantiates(varX, projSignature.instantiates(varX, varY)), succSignature.instantiates(zeroCte), bags));
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        Unification unification = unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte));
+        assertTrue(unification.isSuccess());
+        
+        Unification expectedUnification = new Unification(new SubstitutionBag(new Substitution(varX, succSignature.instantiates(zeroCte))));
+        assertTrue(unification.equals(expectedUnification));;
     }
 
     @Test
@@ -363,17 +316,14 @@ public class TermUnifierTest {
         OperationSignature addSignature = adt.getOperationSignature("add");
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(adt));
-        Set<SubstitutionBag> bags = new HashSet<SubstitutionBag>();
-        assertTrue(unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, varY)), succSignature.instantiates(zeroCte), bags));
-        assertTrue(bags.size() == 2);
-        SubstitutionBag[] tmp = new SubstitutionBag[bags.size()];
-        bags.toArray(tmp);        
-        assertTrue(tmp[0].getValue(varX).equals(succSignature.instantiates(zeroCte)));
-        assertTrue(tmp[0].getValue(varY).equals(zeroCte));
+        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        Unification unification = unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, varY)), succSignature.instantiates(zeroCte));
+        assertTrue(unification.isSuccess());
 
-        assertTrue(tmp[1].getValue(varX).equals(zeroCte));
-        assertTrue(tmp[1].getValue(varY).equals(succSignature.instantiates(zeroCte)));
+        SubstitutionBag expectedSubs1 = new SubstitutionBag(new Substitution(varX, zeroCte), new Substitution(varY, succSignature.instantiates(zeroCte)));
+        SubstitutionBag expectedSubs2 = new SubstitutionBag(new Substitution(varY, zeroCte), new Substitution(varX, succSignature.instantiates(zeroCte)));
+        Unification expectedUnification = new Unification(expectedSubs1, expectedSubs2);
+        assertTrue(unification.equals(expectedUnification));
     }
 
 

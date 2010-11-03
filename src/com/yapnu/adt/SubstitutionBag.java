@@ -7,7 +7,6 @@ package com.yapnu.adt;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -18,7 +17,7 @@ import java.util.Set;
  *
  * @author adrien
  */
-public class SubstitutionBag {
+public final class SubstitutionBag {
     private final HashMap<Variable, Term> substitutions = new HashMap<Variable, Term>();
     private boolean hasBeenModified = false;
     private boolean isRecomputing = false;
@@ -169,7 +168,7 @@ public class SubstitutionBag {
         HashMultimap<Variable, Variable> connectivityList = HashMultimap.create();
         for (Entry<Variable, Term> entry : substitutions.entrySet()) {
             Set<Variable> dependentVariables = entry.getValue().getVariables();
-            if (dependentVariables.size() == 0) {
+            if (dependentVariables.isEmpty()) {
                 connectivityList.put(entry.getKey(), null);
             } else {
                 connectivityList.putAll(entry.getKey(), dependentVariables);

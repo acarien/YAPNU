@@ -7,7 +7,6 @@ package com.yapnu.adt;
 
 import com.yapnu.adt.model.BooleanAdt;
 import com.yapnu.adt.model.IntegerAdt;
-import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -24,7 +23,7 @@ public class TermRewritterTest {
     @Test
     public void testRewritteGenerators() {
         Adt adt = BooleanAdt.instance().getAdt();
-        TermRewritter rewritter = new TermRewritter(adt);
+        TermRewritter rewritter = new TermRewritter(new AdtBag(adt));
         
         Term rewrittenTerm1 = rewritter.rewritte(adt.getConstant("true"));
         assertEquals(rewrittenTerm1, adt.getConstant("true"));
@@ -39,14 +38,14 @@ public class TermRewritterTest {
     @Test
     public void testRewritteAlreadyDefinedAxiom() {
         Adt boolAdt = BooleanAdt.instance().getAdt();
-        TermRewritter rewritter1 = new TermRewritter(boolAdt);
+        TermRewritter rewritter1 = new TermRewritter(new AdtBag(boolAdt));
 
         Term finalTerm = boolAdt.getOperationSignature("not").instantiates(boolAdt.getConstant("false"));
         assertEquals("rewritte an already defined axiom", rewritter1.rewritte(finalTerm), boolAdt.getConstant("true"));
 
 
         Adt intAdt = IntegerAdt.instance().getAdt();
-        TermRewritter rewritter2 = new TermRewritter(intAdt);
+        TermRewritter rewritter2 = new TermRewritter(new AdtBag(intAdt));
         intAdt.addTerm(new Constant("2", intAdt.getSort(), false));
         OperationSignature succ = intAdt.getOperationSignature("succ");
         Term two = succ.instantiates(succ.instantiates(intAdt.getConstant("0")));
@@ -57,7 +56,7 @@ public class TermRewritterTest {
     @Test
     public void testRewritteComplexTerm() {
         Adt adt = BooleanAdt.instance().getAdt();
-        TermRewritter rewritter = new TermRewritter(adt);
+        TermRewritter rewritter = new TermRewritter(new AdtBag(adt));
 
         Constant falseTerm = adt.getConstant("false");
         Constant trueTerm = adt.getConstant("true");
@@ -75,7 +74,7 @@ public class TermRewritterTest {
     @Test
     public void testRewritteShortcutTerm() {
         Adt adt = new Adt(new Sort("bool"));
-        TermRewritter rewritter = new TermRewritter(adt);
+        TermRewritter rewritter = new TermRewritter(new AdtBag(adt));
         
         Constant falseTerm = new Constant("false", adt.getSort());
         Constant trueTerm = new Constant("true", adt.getSort());
@@ -98,7 +97,7 @@ public class TermRewritterTest {
     @Test
     public void testRewritteVariableNotContainedInAxiom() {
         Adt adt = new Adt(new Sort("bool"));
-        TermRewritter rewritter = new TermRewritter(adt);
+        TermRewritter rewritter = new TermRewritter(new AdtBag(adt));
                
         Variable variableX = new Variable("x", adt.getSort());                      
                 
@@ -109,7 +108,7 @@ public class TermRewritterTest {
     @Test
     public void testRewritteVariableContainedInAxiom() {
         Adt adt = new Adt(new Sort("bool"));
-        TermRewritter rewritter = new TermRewritter(adt);
+        TermRewritter rewritter = new TermRewritter(new AdtBag(adt));
 
         Constant falseTerm = new Constant("false", adt.getSort());
         adt.addTerm(falseTerm);
@@ -126,7 +125,7 @@ public class TermRewritterTest {
     @Test
     public void testRewritteAddFunction() {
         Adt adt = IntegerAdt.instance().getAdt();
-        TermRewritter rewritter = new TermRewritter(adt);
+        TermRewritter rewritter = new TermRewritter(new AdtBag(adt));
 
         Constant zero = adt.getConstant("0");
         OperationSignature addSignature = adt.getOperationSignature("add");
@@ -142,14 +141,11 @@ public class TermRewritterTest {
     }
 
     @Test
-    public void testRewritteEqualsFunction() {
-        ArrayList<Adt> adts = new ArrayList<Adt>();
+    public void testRewritteEqualsFunction() {        
         Adt intAdt = IntegerAdt.instance().getAdt();
-        Adt boolAdt = BooleanAdt.instance().getAdt();
-        adts.add(intAdt);
-        adts.add(boolAdt);
+        Adt boolAdt = BooleanAdt.instance().getAdt();        
 
-        TermRewritter rewritter = new TermRewritter(adts);
+        TermRewritter rewritter = new TermRewritter(new AdtBag(intAdt, boolAdt));
 
         Constant zero = intAdt.getConstant("0");
         Constant falseTerm = boolAdt.getConstant("false");
@@ -174,14 +170,11 @@ public class TermRewritterTest {
     }
 
     @Test
-    public void testRewritteStrangeDomainFunction() {
-        ArrayList<Adt> adts = new ArrayList<Adt>();
+    public void testRewritteStrangeDomainFunction() {       
         Adt intAdt = IntegerAdt.instance().getAdt();
         Adt boolAdt = BooleanAdt.instance().getAdt();
-        adts.add(intAdt);
-        adts.add(boolAdt);
-
-        TermRewritter rewritter = new TermRewritter(adts);
+        
+        TermRewritter rewritter = new TermRewritter(new AdtBag(intAdt, boolAdt));
 
         Constant zero = intAdt.getConstant("0");
         Constant trueTerm = boolAdt.getConstant("true");
@@ -206,11 +199,8 @@ public class TermRewritterTest {
         Variable varY = intAdt.getVariable("y");
         Axiom axiom = new Axiom(gSignature.instantiates(varY), varY);
         intAdt.addAxiom(axiom);
-
-        ArrayList<Adt> adts = new ArrayList<Adt>();
-        adts.add(intAdt);
-
-        TermRewritter rewritter = new TermRewritter(adts);
+        
+        TermRewritter rewritter = new TermRewritter(new AdtBag(intAdt));
         Term originalTerm = fSignature.instantiates(gSignature.instantiates(varX), varX);
                         
         Term rewrittenTerm = rewritter.rewritte(originalTerm);

@@ -6,13 +6,12 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 
 /**
  *
  * @author adrien
  */
-public class Constant implements Term {
+public final class Constant implements Term {
 
     private final String name;
     private final Sort sort;
@@ -135,7 +134,7 @@ public class Constant implements Term {
     }
 
     @Override
-    public boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
-        return false;
+    public Unification canUnify(TermUnifier termUnifier, Term expectedValue) {
+        return Unification.FAIL;
     }
 }

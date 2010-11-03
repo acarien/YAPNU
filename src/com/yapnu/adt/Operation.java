@@ -9,14 +9,12 @@ import com.google.common.collect.ImmutableSet.Builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  *
  * @author adrien
  */
-public class Operation implements Term {
+public final class Operation implements Term {
 
     private final OperationSignature signature;
     private final Term[] parameters;
@@ -210,45 +208,34 @@ public class Operation implements Term {
     }
 
     @Override
-    public boolean canUnifyRecursively(TermUnifier termUnifier, Term expectedValue, Set<SubstitutionBag> substitutionSet) {
+    public Unification canUnify(TermUnifier termUnifier, Term expectedValue) {
         if (!(expectedValue instanceof Operation)) {
-            return false;
+            return Unification.FAIL;
         }
 
         Operation expectingOperation = (Operation) expectedValue;
         if (!this.signature.equals(expectingOperation.getOperationSignature())) {
-            return false;
+            return Unification.FAIL;
         }
 
         boolean allParametersAreUnified = true;
-        ArrayList<Set<SubstitutionBag>> allSubstitutionSet = new ArrayList<Set<SubstitutionBag>>();
+        ArrayList<Unification> allSubstitutionSet = new ArrayList<Unification>();
 
         for (int i = 0; i < this.parameters.length; i++) {
-            Set<SubstitutionBag> localSubstitutionSet = new HashSet<SubstitutionBag>();
-            if (!termUnifier.canUnify(this.parameters[i], expectingOperation.getParamter(i), localSubstitutionSet)) {
+            Unification unification = termUnifier.canUnify(this.parameters[i], expectingOperation.getParamter(i));
+            if (!unification.isSuccess()) {
                 allParametersAreUnified = false;
                 break;
             }
 
-            allSubstitutionSet.add(localSubstitutionSet);
+            allSubstitutionSet.add(unification);
         }
 
-        if (allParametersAreUnified) {
-            Set<SubstitutionBag> result = new HashSet<SubstitutionBag>();
-            if (!SubstitutionBagCollection.Distribute(allSubstitutionSet, result)) {
-                return false;
-            }
-
+        if (allParametersAreUnified) {            
             // on doit filtrer le resultat par rapport aux variables du terme
-            
-            if (allSubstitutionSet.size() > 0 && result.size() == 0) {
-                return false;
-            }
-            
-            substitutionSet.addAll(result);
-            return true;
+            return Unification.Distribute(allSubstitutionSet);
         }
         
-        return false;
+        return Unification.FAIL;
     }    
 }

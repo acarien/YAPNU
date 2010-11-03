@@ -69,7 +69,7 @@ public class SubstitutionBagTest {
     }
 
     @Test
-    public void awd() {
+    public void testCanSubstituteAVariableAsSubstitutionByAnotherTerm() {
         Sort sort = new Sort("bool");
         Variable variableX0 = new Variable("x0", sort);
         Variable variableX1 = new Variable("x1", sort);
@@ -83,7 +83,7 @@ public class SubstitutionBagTest {
     }
 
     @Test
-    public void awd2() {
+    public void testCanSubstituteASubstitutionByAVariable() {
         Sort sort = new Sort("bool");
         Variable variableX0 = new Variable("x0", sort);
         Variable variableX1 = new Variable("x1", sort);

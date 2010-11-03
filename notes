@@ -1,31 +1,30 @@
 Next steps
 ==========
 
-- regarder si on peut éviter le code bizard dans trygetsubs en passant renomant la precondition
-
 - enlever les singletons sur les adts...
-
 
 - les résultats de la deuxième étape d'unification d'un axiom doivent être filtrés par rapport à ces variables !
 
 - adt.getAxiom => termRewritter ?
+
+- unification avec plusieurs adts
 
 - on doit toujours retourner un SubstitutionBag, meme si l'operation tryMatch n'a pas reussi
 -- SubstitutionBag doit contenir un flag success
 
 - on peut faire un set de substitutionset qui contienne une contrainte (sous forme de substitutionSet) qui filtre
 
-- unifcation à l'envers
 - tests avec http://en.wikipedia.org/wiki/Unification_%28computing%29
 
 - réécrire getvariables
-- renommer substitution en unification
 
 - adt ne peut avoir qu'une seule constante du même nom
 - idem pour variable
 - tester occurscheck dans SubstitutionBag
 
 - verifier tout les usages de getVariables() (=> créer un hasVariable?)
+
+- vérifer que les params dans le constructor lancent des exceptions au cas ou il y a un problème. ex: substitutionbag
 
 - ajouter les axiomes
 -- and(x, false) = false
