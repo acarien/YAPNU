@@ -164,7 +164,7 @@ public final class Operation implements Term {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 53 * hash + (this.signature != null ? this.signature.hashCode() : 0);
+        hash = 53 * hash + this.signature.hashCode();
         hash = 53 * hash + Arrays.deepHashCode(this.parameters);
         return hash;
     }
@@ -233,7 +233,7 @@ public final class Operation implements Term {
 
         if (allParametersAreUnified) {            
             // on doit filtrer le resultat par rapport aux variables du terme
-            return Unification.Distribute(allSubstitutionSet);
+            return Unification.distribute(allSubstitutionSet);
         }
         
         return Unification.FAIL;

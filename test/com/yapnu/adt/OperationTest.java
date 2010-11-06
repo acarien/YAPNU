@@ -5,6 +5,7 @@
 
 package com.yapnu.adt;
 
+import com.google.common.collect.ImmutableSet;
 import com.yapnu.adt.model.BooleanAdt;
 import com.yapnu.adt.model.IntegerAdt;
 import org.junit.Test;
@@ -108,7 +109,7 @@ public class OperationTest {
     }
 
     @Test
-    public void testIsValidSubstitutionsRecurive() {
+    public void testIsValidSubstitutionsRecursive() {
         Adt adt = IntegerAdt.instance().getAdt();
         Variable variableX = new Variable("x", adt.getSort());
         
@@ -230,7 +231,7 @@ public class OperationTest {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testVariableWithSameNameButDifferentTypeAsParameters() {
+    public void testVariableWithSameNameButDifferentTypesAreIllegals() {
         Sort dummySort = new Sort("dummy");
         Sort stupidSort = new Sort("stupid");
         Variable dummyX = new Variable("x", dummySort);
@@ -238,5 +239,51 @@ public class OperationTest {
 
         OperationSignature opSignature = new OperationSignature("op", false, dummySort, dummySort, stupidSort);
         opSignature.instantiates(dummyX, stupidX);
+    }
+
+    @Test
+    public void testGetVariables() {
+        Adt adt = IntegerAdt.instance().getAdt();
+        Constant zero = adt.getConstant("0");
+        Variable x = new Variable("x", adt.getSort());
+        Variable y = new Variable("y", adt.getSort());
+        OperationSignature succ = adt.getOperationSignature("succ");
+        OperationSignature add = adt.getOperationSignature("add");
+        
+        Term term = add.instantiates(x, add.instantiates(zero, succ.instantiates(y)));
+        ImmutableSet<Variable> expectedResult1 = ImmutableSet.of(x, y);
+        assertEquals(term.getVariables(), expectedResult1);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testRenameVariablesNullBag() {
+        Adt adt = IntegerAdt.instance().getAdt();
+        Constant zero = adt.getConstant("0");
+        Variable x = new Variable("x", adt.getSort());
+        Variable y = new Variable("y", adt.getSort());
+        OperationSignature succ = adt.getOperationSignature("succ");
+        OperationSignature add = adt.getOperationSignature("add");
+
+        Term term = add.instantiates(x, add.instantiates(zero, succ.instantiates(y)));
+        term.renameVariables(null);
+    }
+
+    @Test
+    public void testRenameVariables() {
+        Adt adt = IntegerAdt.instance().getAdt();
+        Constant zero = adt.getConstant("0");
+        Variable x = new Variable("x", adt.getSort());
+        Variable y = new Variable("y", adt.getSort());
+        OperationSignature succ = adt.getOperationSignature("succ");
+        OperationSignature add = adt.getOperationSignature("add");
+
+        Operation operation = add.instantiates(x, add.instantiates(zero, succ.instantiates(y)));
+        SubstitutionBag bag = new SubstitutionBag(new Substitution(y, zero));
+        Term result = operation.renameVariables(bag);
+        assertTrue(result instanceof Operation);
+        assertEquals(operation.getOperationSignature(), ((Operation) result).getOperationSignature());
+        assertTrue(bag.hasSubstitution(x));
+        assertTrue(bag.getValue(x) instanceof Variable);
+        assertEquals(bag.getValue(y), zero);
     }
 }

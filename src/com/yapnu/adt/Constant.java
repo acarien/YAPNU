@@ -109,11 +109,11 @@ public final class Constant implements Term {
             return false;
         }
 
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+        if (!this.name.equals(other.name)) {
             return false;
         }
 
-        if (this.sort != other.sort && (this.sort == null || !this.sort.equals(other.sort))) {
+        if (this.sort != other.sort && !this.sort.equals(other.sort)) {
             return false;
         }
         
@@ -123,8 +123,8 @@ public final class Constant implements Term {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 89 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 89 * hash + (this.sort != null ? this.sort.hashCode() : 0);
+        hash = 89 * hash + this.name.hashCode();
+        hash = 89 * hash + this.sort.hashCode();
         return hash;
     }
 

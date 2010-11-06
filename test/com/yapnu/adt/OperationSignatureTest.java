@@ -32,10 +32,10 @@ public class OperationSignatureTest {
 
         assertEquals("equals", term1, term1Cloned);
         assertEquals("symmetry", term1Cloned, term1);
-        assertNotSame("different name", term1, term2);
-        assertNotSame("different domain (1)", term1, term3);
-        assertNotSame("different domain (2)", term1, term4);
-        assertNotSame("different codomain", term1, term5);
+        assertFalse("different name", term1.equals(term2));
+        assertFalse("different domain (1)", term1.equals(term3));
+        assertFalse("different domain (2)", term1.equals(term4));
+        assertFalse("different codomain", term1.equals(term5));
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -76,5 +76,10 @@ public class OperationSignatureTest {
     @Test(expected=IllegalArgumentException.class)
     public void testInstantiationWithArgumentOfWrongSort() {
         new OperationSignature("term", false, sort).instantiates(new Constant("cte1", new Sort("anotherSort")));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testInstantiationWithNullArgument() {
+        new OperationSignature("term", false, sort).instantiates(null);
     }
 }

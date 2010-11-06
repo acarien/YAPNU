@@ -90,11 +90,11 @@ public final class OperationSignature {
             return false;
         }
 
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+        if (!this.name.equals(other.name)) {
             return false;
         }
 
-        if (this.codomain != other.codomain && (this.codomain == null || !this.codomain.equals(other.codomain))) {
+        if (this.codomain != other.codomain && !this.codomain.equals(other.codomain)) {
             return false;
         }
 
@@ -108,8 +108,8 @@ public final class OperationSignature {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 97 * hash + (this.codomain != null ? this.codomain.hashCode() : 0);
+        hash = 97 * hash + this.name.hashCode();
+        hash = 97 * hash + this.codomain.hashCode();
         return hash;
     }
 }

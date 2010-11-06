@@ -5,8 +5,6 @@
 package com.yapnu.adt;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.HashMap;
-import java.util.LinkedList;
 
 /**
  *
@@ -14,19 +12,13 @@ import java.util.LinkedList;
  */
 public class TermUnifier {
 
-    //private final HashMap<Sort, LinkedList<Adt>> adts;
-    private Adt adt;
+    private AdtBag adts;
     private TermRewritter rewritter;
 
-    public TermUnifier(Adt adt, TermRewritter rewritter) {
-        this.adt = adt;
-        this.rewritter = rewritter;
+    public TermUnifier(AdtBag adts) {
+        this.adts = adts;
+        this.rewritter = new TermRewritter(adts);
     }
-
-    TermRewritter getRewritter() {
-        return rewritter;
-    }   
-
     public Unification canUnify(Term term, Term expectedValue) {
         Unification unification = new Unification();
         if (term.equals(expectedValue)) {
@@ -49,9 +41,11 @@ public class TermUnifier {
         }
 
         // est-ce qu'il y a un axiome qui s'applique
-        unification = adt.canUnifyThroughAxioms(this, term, expectedValue);
-        if (unification.isSuccess()) {            
-            return unification;
+        for (Adt adt : adts.getAdt(term.getSort())) {
+            unification = adt.canUnifyThroughAxioms(this, term, expectedValue);
+            if (unification.isSuccess()) {
+                return unification;
+            }
         }
 
         // recursivement

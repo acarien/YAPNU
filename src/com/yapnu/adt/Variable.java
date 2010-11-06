@@ -119,11 +119,11 @@ public class Variable implements Term {
             return false;
         }              
 
-        if (this.sort != other.sort && (this.sort == null || !this.sort.equals(other.sort))) {
+        if (this.sort != other.sort && !this.sort.equals(other.sort)) {
             return false;
         }
 
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+        if (!this.name.equals(other.name)) {
             return false;
         }
 
@@ -133,8 +133,8 @@ public class Variable implements Term {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 61 * hash + (this.sort != null ? this.sort.hashCode() : 0);
-        hash = 61 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 61 * hash + this.sort.hashCode();
+        hash = 61 * hash + this.name.hashCode();
         return hash;
     }
 
@@ -155,7 +155,7 @@ public class Variable implements Term {
 
         Variable clone = new Variable(UUID.randomUUID().toString(), this.sort, true);
         if (!substitutions.tryAddSubstitution(this, clone)) {
-            throw new IllegalArgumentException("groupmf!");
+            throw new IllegalArgumentException("This error should never happen !");
         }
 
         return clone;

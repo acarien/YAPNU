@@ -33,19 +33,19 @@ public class UnificationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testDistributeNullList() {
-        Unification.Distribute(null);
+        Unification.distribute(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDistributeSomeBagsAreNull() {
         bags.add(new Unification());
         bags.add(null);
-        Unification.Distribute(bags);
+        Unification.distribute(bags);
     }
 
     @Test
     public void testDistributeEmptyList() {        
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -61,7 +61,7 @@ public class UnificationTest {
         bags.add(new Unification());
 
         expectedResult.add(new SubstitutionBag());        
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -77,7 +77,7 @@ public class UnificationTest {
 
         expectedResult.add(content);
         
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -95,7 +95,7 @@ public class UnificationTest {
 
         expectedResult.add(content);
         
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -113,7 +113,7 @@ public class UnificationTest {
 
         expectedResult.add(content);
         
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -141,7 +141,7 @@ public class UnificationTest {
         res.tryAddSubstitutions(content1);
         res.tryAddSubstitutions(content2);
         
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -178,7 +178,7 @@ public class UnificationTest {
         res2.tryAddSubstitutions(content1a);
         res2.tryAddSubstitution(variableY, one);
         
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -234,7 +234,7 @@ public class UnificationTest {
         res4.tryAddSubstitution(variableX, one);
         res4.tryAddSubstitution(variableY, one);
 
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }
@@ -257,7 +257,7 @@ public class UnificationTest {
         bags.add(tmp1);
         bags.add(tmp2);
         
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertFalse(result.isSuccess());
     }
 
@@ -300,7 +300,7 @@ public class UnificationTest {
         res3.tryAddSubstitution(variableX, one);
         res3.tryAddSubstitution(variableY, zero);
 
-        Unification result = Unification.Distribute(bags);
+        Unification result = Unification.distribute(bags);
         assertTrue(result.isSuccess());
         assertEquals(result, expectedResult);
     }

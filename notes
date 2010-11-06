@@ -1,6 +1,7 @@
 Next steps
 ==========
 
+- update des tests
 - enlever les singletons sur les adts...
 
 - les résultats de la deuxième étape d'unification d'un axiom doivent être filtrés par rapport à ces variables !
@@ -8,6 +9,7 @@ Next steps
 - adt.getAxiom => termRewritter ?
 
 - unification avec plusieurs adts
+- unification: axiom: le dernier test (si on arrive bien à faire l'unification finale) ne nécessite pas de remonter toutes les combinaisions d'unifications possibles. Savoir si c'est possible suffit !
 
 - on doit toujours retourner un SubstitutionBag, meme si l'operation tryMatch n'a pas reussi
 -- SubstitutionBag doit contenir un flag success

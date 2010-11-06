@@ -45,9 +45,8 @@ public class TermUnifierTest {
         x = new Variable("x", intAdt.getSort());
         y = new Variable("y", intAdt.getSort());
         z = new Variable("z", intAdt.getSort());
-
-        AdtBag adtBag = new AdtBag(intAdt);
-        unifer = new TermUnifier(intAdt, new TermRewritter(adtBag));
+       
+        unifer = new TermUnifier(new AdtBag(intAdt));
     }
 
     @After
@@ -223,7 +222,7 @@ public class TermUnifierTest {
 
         adt.addAxiom(new Axiom(equalsSignature.instantiates(varX, bCte), nSignature.instantiates(varX), varX));
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        TermUnifier unifier = new TermUnifier(new AdtBag(adt));
         Unification unification = unifier.canUnify(nSignature.instantiates(varX), bCte);
         assertTrue(unification.isSuccess());
 
@@ -259,7 +258,7 @@ public class TermUnifierTest {
 
         adt.addAxiom(new Axiom(equalsSignature.instantiates(varX, bCte), nSignature.instantiates(varX), aCte));
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        TermUnifier unifier = new TermUnifier(new AdtBag(adt));
         Unification unification = unifier.canUnify(nSignature.instantiates(varX), aCte);
         assertTrue(unification.isSuccess());
 
@@ -278,7 +277,7 @@ public class TermUnifierTest {
         OperationSignature addSignature = adt.getOperationSignature("add");
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        TermUnifier unifier = new TermUnifier(new AdtBag(adt));
         Unification unification = unifier.canUnify(proj2.instantiates(varX, zeroCte), zeroCte);
         assertTrue(unification.isSuccess());
         assertTrue(unification.size() == 1);
@@ -296,7 +295,7 @@ public class TermUnifierTest {
         OperationSignature addSignature = adt.getOperationSignature("add");
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        TermUnifier unifier = new TermUnifier(new AdtBag(adt));
         Unification unification = unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, zeroCte)), succSignature.instantiates(zeroCte));
         assertTrue(unification.isSuccess());
         
@@ -316,7 +315,7 @@ public class TermUnifierTest {
         OperationSignature addSignature = adt.getOperationSignature("add");
         OperationSignature succSignature = adt.getOperationSignature("succ");
 
-        TermUnifier unifier = new TermUnifier(adt, new TermRewritter(new AdtBag(adt)));
+        TermUnifier unifier = new TermUnifier(new AdtBag(adt));
         Unification unification = unifier.canUnify(addSignature.instantiates(varX, proj2.instantiates(varX, varY)), succSignature.instantiates(zeroCte));
         assertTrue(unification.isSuccess());
 

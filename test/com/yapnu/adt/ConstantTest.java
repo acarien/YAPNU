@@ -31,7 +31,7 @@ public class ConstantTest {
 
         assertTrue("same objects", this.term.equals(termCloned));
         assertTrue("symmetry", termCloned.equals(this.term));
-        assertFalse("difference on names", this.term.equals(term2));
+        assertFalse("difference on names", this.term.equals(term2));        
         assertFalse("difference on sorts", this.term.equals(term3));
         assertTrue("same event with difference in isGenerator", this.term.equals(term4));
     }
@@ -62,5 +62,17 @@ public class ConstantTest {
     public void testSubstitutes() {
         assertEquals("'substitution' with no substitutions", this.term.substitutes(null), this.term);
         assertEquals("'substitution' works with any substitution", this.term.substitutes(new SubstitutionBag()), this.term);
+    }
+
+    @Test
+    public void testGetVariables()  {
+      assertTrue(this.term.getVariables().isEmpty());
+    }
+
+    @Test
+    public void testRenameVariables()  {
+      SubstitutionBag bag = new SubstitutionBag();
+      assertEquals(this.term.renameVariables(null), term);
+      assertEquals(this.term.renameVariables(bag), term);
     }
 }

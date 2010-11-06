@@ -5,6 +5,7 @@
 
 package com.yapnu.adt;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -103,5 +104,49 @@ public class VariableTest {
         bag.clear();
 
         assertEquals("No substitution provided", x.substitutes(bag), x);
+    }
+
+    @Test
+    public void testGetVariables() {
+        ImmutableSet<Variable> expectedResult = ImmutableSet.of(x);
+        assertEquals(x.getVariables(), expectedResult);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testRenameVariablesNullBag() {
+        x.renameVariables(null);
+    }
+
+    @Test
+    public void testRenameVariablesUseExistingSubstitution() {
+        SubstitutionBag bag = new SubstitutionBag();
+        Term previousRenaming = x.renameVariables(bag);
+        Term result = x.renameVariables(bag);
+        assertEquals(previousRenaming, result);
+    }
+
+    @Test
+    public void testRenameVariablesProduceNewSubstitution() {
+        SubstitutionBag bag = new SubstitutionBag();
+        Term result = x.renameVariables(bag);
+        assertTrue(result instanceof Variable);
+        assertTrue(((Variable) result).isGenerated());
+        assertFalse("Generated and original variables have not the same name.", ((Variable) result).getName().equals(x.getName()));
+        assertTrue("Generated and original variables have the same sort.", ((Variable) result).getSort().equals(x.getSort()));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCreateVariableWithNullName() {
+        new Variable(null, sort);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCreateVariableWithEmptyName() {
+        new Variable("", sort);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCreateVariableWithNullSort() {
+        new Variable("x", null);
     }
 }

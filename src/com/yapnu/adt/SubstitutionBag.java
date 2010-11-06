@@ -118,6 +118,10 @@ public final class SubstitutionBag {
     }
 
     public void retainsAll(Set<Variable> variablesToKeep) {
+        if (variablesToKeep == null) {
+            throw new IllegalArgumentException("VariablesToKeep cannot be null.");
+        }
+        
         this.needToComputeSubstitutions();
         this.substitutions.keySet().retainAll(variablesToKeep);
     }
@@ -208,7 +212,7 @@ public final class SubstitutionBag {
         this.needToComputeSubstitutions();
         other.needToComputeSubstitutions();
         
-        if (this.substitutions != other.substitutions && (this.substitutions == null || !this.substitutions.equals(other.substitutions))) {
+        if (this.substitutions != other.substitutions && !this.substitutions.equals(other.substitutions)) {
             return false;
         }
         return true;
@@ -217,7 +221,7 @@ public final class SubstitutionBag {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 53 * hash + (this.substitutions != null ? this.substitutions.hashCode() : 0);
+        hash = 53 * hash + this.substitutions.hashCode();
         return hash;
     }
 }

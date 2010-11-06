@@ -16,7 +16,7 @@ import java.util.Set;
  *
  * @author adrien
  */
-public class Unification implements Iterable<SubstitutionBag> {
+public final class Unification implements Iterable<SubstitutionBag> {
     final static Unification FAIL = new Unification(false);
 
     private boolean success = false;
@@ -80,13 +80,13 @@ public class Unification implements Iterable<SubstitutionBag> {
         return set.iterator();
     }
 
-    public static Unification Distribute(ArrayList<Unification> unifications) {
+    public static Unification distribute(ArrayList<Unification> unifications) {
         if (unifications == null) {
             throw new IllegalArgumentException("Unifications cannot be null.");
         }
          
         Unification result = new Unification();
-        if (unifications.size() == 0) {
+        if (unifications.isEmpty()) {
             return result;
         }
 
@@ -106,7 +106,7 @@ public class Unification implements Iterable<SubstitutionBag> {
                         
         boolean hasSucceeded = false;
         for (SubstitutionBag unification : unifications.get(0)) {
-            if (CanDistribute(unifications, 1, unification, result)) {
+            if (canDistribute(unifications, 1, unification, result)) {
                 hasSucceeded = true;
             }
         }
@@ -141,7 +141,7 @@ public class Unification implements Iterable<SubstitutionBag> {
         return hash;
     }
 
-    private static boolean CanDistribute(ArrayList<Unification> bags, int index, SubstitutionBag current, Unification result) {
+    private static boolean canDistribute(ArrayList<Unification> bags, int index, SubstitutionBag current, Unification result) {
         if (index >= bags.size()) {
             SubstitutionBag res = new SubstitutionBag();
             res.tryAddSubstitutions(current);
@@ -161,7 +161,7 @@ public class Unification implements Iterable<SubstitutionBag> {
                 continue;
             }
 
-            if (CanDistribute(bags, index + 1, current, result)) {
+            if (canDistribute(bags, index + 1, current, result)) {
                 hasSucceeded = true;
             }
         }
